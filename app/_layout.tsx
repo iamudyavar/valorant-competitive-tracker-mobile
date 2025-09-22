@@ -35,7 +35,7 @@ export default function RootLayout() {
                 }
             }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="match/[vlrId]" options={{ title: 'Match Details' }} />
+                <Stack.Screen name="match/[vlrId]" options={{ title: 'Match Details', headerBackTitle: 'Back' }} />
             </Stack>
         </ConvexClientProvider>
     );
