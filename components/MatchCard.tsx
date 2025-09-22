@@ -13,6 +13,40 @@ type MatchCardProps = {
     event: { name: string; series: string; };
 };
 
+// Function to format time in a human-readable way
+const formatTime = (timeString: string) => {
+    try {
+        const date = new Date(timeString);
+        const now = new Date();
+        const isToday = date.toDateString() === now.toDateString();
+        const isTomorrow = date.toDateString() === new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString();
+
+        const timeOptions: Intl.DateTimeFormatOptions = {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        };
+
+        const dateOptions: Intl.DateTimeFormatOptions = {
+            month: 'short',
+            day: 'numeric'
+        };
+
+        const timeStr = date.toLocaleTimeString('en-US', timeOptions);
+
+        if (isToday) {
+            return `Today, ${timeStr}`;
+        } else if (isTomorrow) {
+            return `Tomorrow, ${timeStr}`;
+        } else {
+            const dateStr = date.toLocaleDateString('en-US', dateOptions);
+            return `${dateStr}, ${timeStr}`;
+        }
+    } catch (error) {
+        return timeString; // Fallback to original string if parsing fails
+    }
+};
+
 const TeamDisplay = ({ name, score, logoUrl, isWinner }: { name: string; score: number; logoUrl: string; isWinner: boolean }) => (
     <View style={styles.teamContainer}>
         <Image source={{ uri: logoUrl }} style={styles.teamLogo} onError={(e) => console.log(e.nativeEvent.error)} />
@@ -37,14 +71,12 @@ export default function MatchCard({ match }: { match: MatchCardProps }) {
                 <View style={styles.eventInfo}>
                     <Text style={styles.eventName}>{match.event.name}</Text>
                     <Text style={styles.eventSeries}>{match.event.series}</Text>
+                    <Text style={styles.timeText}>{formatTime(match.time)}</Text>
                 </View>
                 {match.status === 'live' && (
                     <View style={styles.liveIndicator}>
                         <Text style={styles.liveText}>LIVE</Text>
                     </View>
-                )}
-                {match.status === 'upcoming' && (
-                    <Text style={styles.timeText}>{match.time}</Text>
                 )}
             </View>
 
@@ -104,8 +136,9 @@ const styles = StyleSheet.create({
     },
     timeText: {
         color: '#A0A0A0',
-        fontSize: 14,
-        fontFamily: 'Inter_600SemiBold',
+        fontSize: 12,
+        fontFamily: 'Inter_400Regular',
+        marginTop: 2,
     },
     teamsSection: {
         marginTop: 8,

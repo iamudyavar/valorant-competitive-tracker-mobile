@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
@@ -53,23 +54,25 @@ export default function HomePage() {
   const isEmpty = live.length === 0 && upcoming.length === 0;
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
-      }
-    >
-      {isEmpty ? (
-        <View style={styles.centered}>
-          <Text style={styles.emptyText}>No live or upcoming matches.</Text>
-        </View>
-      ) : (
-        <>
-          <Section title="Live" data={live} />
-          <Section title="Upcoming" data={upcoming} />
-        </>
-      )}
-    </ScrollView>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
+        }
+      >
+        {isEmpty ? (
+          <View style={styles.centered}>
+            <Text style={styles.emptyText}>No live or upcoming matches.</Text>
+          </View>
+        ) : (
+          <>
+            <Section title="Live" data={live} />
+            <Section title="Upcoming" data={upcoming} />
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -77,6 +80,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
+  },
+  scrollView: {
+    flex: 1,
   },
   centered: {
     flex: 1,

@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePaginatedQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
@@ -30,7 +31,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {results.length === 0 ? (
         <View style={styles.centered}>
           <Text style={styles.emptyText}>No completed matches found.</Text>
@@ -45,7 +46,7 @@ export default function ResultsPage() {
           ListFooterComponent={isLoading ? <ActivityIndicator style={{ margin: 20 }} color="#fff" /> : null}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
