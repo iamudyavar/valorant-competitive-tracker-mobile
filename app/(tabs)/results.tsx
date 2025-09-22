@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { CONVEX_URL } from '@env';
 
 export default function Tab() {
   return (
