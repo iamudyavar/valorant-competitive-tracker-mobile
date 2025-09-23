@@ -127,6 +127,38 @@ export const getCompletedMatches = query({
     },
 });
 
+// Paginated query for home page matches (live and upcoming)
+export const getHomePageMatchesPaginated = query({
+    args: {
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, { paginationOpts }) => {
+        // Get live matches
+        const liveMatches = await ctx.db
+            .query("matches")
+            .withIndex("by_status", (q) => q.eq("status", "live"))
+            .collect();
+
+        // Get upcoming matches with pagination
+        const upcomingPage = await ctx.db
+            .query("matches")
+            .withIndex("by_status_time", (q) => q.eq("status", "upcoming"))
+            .order("asc")
+            .paginate(paginationOpts);
+
+        // Combine live matches with upcoming matches
+        const allMatches = [
+            ...liveMatches.map(transformToCard),
+            ...upcomingPage.page.map(transformToCard)
+        ];
+
+        return {
+            ...upcomingPage,
+            page: allMatches,
+        };
+    },
+});
+
 // Get full match data by vlrId
 export const getMatchById = query({
     args: { vlrId: v.string() },

@@ -24,7 +24,6 @@ const Section = ({ title, data }: { title: string, data: any[] | undefined }) =>
 export default function HomePage() {
   const [refreshing, setRefreshing] = useState(false);
 
-  // Use the new, optimized query for the home page
   const matchesData = useQuery(api.matches.getHomePageMatches, {
     upcomingLimit: 10,
   });
