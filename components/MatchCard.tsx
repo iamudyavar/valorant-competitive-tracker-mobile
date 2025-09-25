@@ -99,11 +99,13 @@ const formatTime = (timeString: string) => {
     }
 };
 
-const TeamDisplay = ({ name, score, logoUrl, isWinner }: { name: string; score: number; logoUrl: string; isWinner: boolean }) => (
+const TeamDisplay = ({ name, score, logoUrl, isWinner, showScore }: { name: string; score: number; logoUrl: string; isWinner: boolean; showScore: boolean }) => (
     <View style={styles.teamContainer}>
         <Image source={{ uri: logoUrl }} style={styles.teamLogo} onError={(e) => console.log(e.nativeEvent.error)} />
         <Text style={[styles.teamName, isWinner && styles.winnerName]}>{name}</Text>
-        <Text style={[styles.teamScore, isWinner && styles.winnerScore]}>{score}</Text>
+        {showScore && (
+            <Text style={[styles.teamScore, isWinner && styles.winnerScore]}>{score}</Text>
+        )}
     </View>
 );
 
@@ -133,8 +135,8 @@ export default function MatchCard({ match }: { match: MatchCardProps }) {
             </View>
 
             <View style={styles.teamsSection}>
-                <TeamDisplay name={match.team1.name} score={match.team1.score} logoUrl={match.team1.logoUrl} isWinner={isTeam1Winner} />
-                <TeamDisplay name={match.team2.name} score={match.team2.score} logoUrl={match.team2.logoUrl} isWinner={isTeam2Winner} />
+                <TeamDisplay name={match.team1.name} score={match.team1.score} logoUrl={match.team1.logoUrl} isWinner={isTeam1Winner} showScore={match.status !== 'upcoming'} />
+                <TeamDisplay name={match.team2.name} score={match.team2.score} logoUrl={match.team2.logoUrl} isWinner={isTeam2Winner} showScore={match.status !== 'upcoming'} />
             </View>
         </Pressable>
     );
