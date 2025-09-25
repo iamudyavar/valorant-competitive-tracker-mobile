@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '../theme/colors';
 
 // Define the type for the match card prop based on your Convex query's transformation
 type MatchCardProps = {
@@ -13,13 +14,62 @@ type MatchCardProps = {
     event: { name: string; series: string; };
 };
 
-// Function to format time in a human-readable way
+// Function to format time where input string represents Eastern time (America/New_York)
+// and should be displayed in the user's local timezone without hardcoding a zone.
 const formatTime = (timeString: string) => {
     try {
-        const date = new Date(timeString);
-        const now = new Date();
-        const isToday = date.toDateString() === now.toDateString();
-        const isTomorrow = date.toDateString() === new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString();
+        const sourceTimeZone = 'America/New_York';
+
+        // Extract components from ISO-like string regardless of trailing 'Z'
+        // Expected: YYYY-MM-DDTHH:MM(:SS)?.*
+        const match = timeString.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?/);
+        if (!match) {
+            return timeString;
+        }
+        const year = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10);
+        const day = parseInt(match[3], 10);
+        const hour = parseInt(match[4], 10);
+        const minute = parseInt(match[5], 10);
+        const second = match[6] ? parseInt(match[6], 10) : 0;
+
+        // Provisional UTC instant using the provided wall time parts
+        let provisionalMs = Date.UTC(year, month - 1, day, hour, minute, second, 0);
+        const provisionalDate = new Date(provisionalMs);
+
+        // Format provisional in source TZ to see what wall parts it maps to
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: sourceTimeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).formatToParts(provisionalDate);
+
+        const fYear = parseInt(parts.find(p => p.type === 'year')?.value || String(year), 10);
+        const fMonth = parseInt(parts.find(p => p.type === 'month')?.value || String(month), 10);
+        const fDay = parseInt(parts.find(p => p.type === 'day')?.value || String(day), 10);
+        const fHour = parseInt(parts.find(p => p.type === 'hour')?.value || String(hour), 10);
+        const fMinute = parseInt(parts.find(p => p.type === 'minute')?.value || String(minute), 10);
+        const fSecond = parseInt(parts.find(p => p.type === 'second')?.value || String(second), 10);
+
+        // Compute delta between intended source wall time and formatted wall time
+        const intendedWallUtcMs = Date.UTC(year, month - 1, day, hour, minute, second, 0);
+        const formattedWallUtcMs = Date.UTC(fYear, fMonth - 1, fDay, fHour, fMinute, fSecond, 0);
+        const deltaMs = intendedWallUtcMs - formattedWallUtcMs;
+
+        // Apply delta to get the UTC instant that corresponds to the intended Eastern wall time
+        const desiredUtcMs = provisionalMs + deltaMs;
+        const desiredDate = new Date(desiredUtcMs);
+
+        // Determine Today/Tomorrow in the user's local timezone
+        const localNow = new Date();
+        const sameLocalDate = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+        const isToday = sameLocalDate(desiredDate, localNow);
+        const isTomorrow = sameLocalDate(desiredDate, new Date(localNow.getTime() + 24 * 60 * 60 * 1000));
 
         const timeOptions: Intl.DateTimeFormatOptions = {
             hour: 'numeric',
@@ -28,20 +78,22 @@ const formatTime = (timeString: string) => {
         };
 
         const dateOptions: Intl.DateTimeFormatOptions = {
-            month: 'short',
+            weekday: 'long',
+            month: 'long',
             day: 'numeric'
         };
 
-        const timeStr = date.toLocaleTimeString('en-US', timeOptions);
+        const timeStr = desiredDate.toLocaleTimeString('en-US', timeOptions);
 
         if (isToday) {
             return `Today, ${timeStr}`;
-        } else if (isTomorrow) {
-            return `Tomorrow, ${timeStr}`;
-        } else {
-            const dateStr = date.toLocaleDateString('en-US', dateOptions);
-            return `${dateStr}, ${timeStr}`;
         }
+        if (isTomorrow) {
+            return `Tomorrow, ${timeStr}`;
+        }
+
+        const dateStr = desiredDate.toLocaleDateString('en-US', dateOptions);
+        return `${dateStr}, ${timeStr}`;
     } catch (error) {
         return timeString; // Fallback to original string if parsing fails
     }
@@ -90,12 +142,12 @@ export default function MatchCard({ match }: { match: MatchCardProps }) {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#1E1E1E',
+        backgroundColor: Colors.surface,
         borderRadius: 12,
         padding: 16,
         marginHorizontal: 16,
         marginVertical: 8,
-        shadowColor: '#000',
+        shadowColor: Colors.shadow,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
@@ -107,35 +159,35 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#333',
+        borderBottomColor: Colors.divider,
         paddingBottom: 8,
     },
     eventInfo: {
         flex: 1,
     },
     eventName: {
-        color: '#E0E0E0',
+        color: Colors.textMuted,
         fontSize: 14,
         fontFamily: 'Inter_600SemiBold',
     },
     eventSeries: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontSize: 12,
         fontFamily: 'Inter_400Regular',
     },
     liveIndicator: {
-        backgroundColor: '#FF4655',
+        backgroundColor: Colors.danger,
         borderRadius: 4,
         paddingHorizontal: 8,
         paddingVertical: 2,
     },
     liveText: {
-        color: '#fff',
+        color: Colors.textPrimary,
         fontSize: 12,
         fontFamily: 'Inter_700Bold',
     },
     timeText: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontSize: 12,
         fontFamily: 'Inter_400Regular',
         marginTop: 2,
@@ -156,12 +208,12 @@ const styles = StyleSheet.create({
     },
     teamName: {
         flex: 1,
-        color: '#fff',
+        color: Colors.textPrimary,
         fontSize: 16,
         fontFamily: 'Inter_400Regular',
     },
     teamScore: {
-        color: '#fff',
+        color: Colors.textPrimary,
         fontSize: 16,
         fontFamily: 'Inter_600SemiBold',
         width: 30,
@@ -169,10 +221,10 @@ const styles = StyleSheet.create({
     },
     winnerName: {
         fontFamily: 'Inter_700Bold',
-        color: '#3b82f6',
+        color: Colors.accent,
     },
     winnerScore: {
         fontFamily: 'Inter_700Bold',
-        color: '#3b82f6',
+        color: Colors.accent,
     },
 });

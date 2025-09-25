@@ -1,9 +1,8 @@
 import React, { ReactNode } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { CONVEX_URL } from '@env';
 
 // Initialize the Convex client
-const convex = new ConvexReactClient(CONVEX_URL, {
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
     unsavedChangesWarning: false,
 });
 

@@ -1,7 +1,9 @@
 import { Stack } from 'expo-router';
 import { ConvexClientProvider } from '../providers/ConvexClientProvider';
+import { Colors } from '../theme/colors';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator, View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 export default function RootLayout() {
     // Load fonts for the application
@@ -14,7 +16,7 @@ export default function RootLayout() {
     if (!fontsLoaded) {
         // Show a loading indicator until fonts are loaded
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background }}>
                 <ActivityIndicator size="large" color="#ffffff" />
             </View>
         );
@@ -22,16 +24,17 @@ export default function RootLayout() {
 
     return (
         <ConvexClientProvider>
+            <StatusBar style="light" />
             <Stack screenOptions={{
                 headerStyle: {
-                    backgroundColor: '#1E1E1E',
+                    backgroundColor: Colors.surface,
                 },
                 headerTintColor: '#fff',
                 headerTitleStyle: {
                     fontFamily: 'Inter_600SemiBold',
                 },
                 contentStyle: {
-                    backgroundColor: '#121212'
+                    backgroundColor: Colors.background
                 }
             }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

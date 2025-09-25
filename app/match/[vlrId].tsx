@@ -2,8 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Pressable, Dimensions } from 'react-native';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // Type definitions based on the Convex schema
 interface PlayerStats {
@@ -116,7 +115,7 @@ const MapTab = ({ map, isActive, onPress }: { map: MapData; isActive: boolean; o
 
 
 // Player stats row component
-const PlayerStatsRow = ({ player }: { player: PlayerStats }) => {
+const PlayerStatsRow = ({ player, isLive }: { player: PlayerStats; isLive: boolean }) => {
     return (
         <View style={styles.playerRow}>
             <View style={styles.playerInfo}>
@@ -125,10 +124,21 @@ const PlayerStatsRow = ({ player }: { player: PlayerStats }) => {
                 )}
                 <Text style={styles.playerName}>{player.playerName}</Text>
             </View>
-            <Text style={styles.acsText}>{player.stats.acs}</Text>
-            <Text style={styles.kdaText}>
-                {player.stats.kills}/{player.stats.deaths}/{player.stats.assists}
-            </Text>
+            {!isLive && (
+                <>
+                    <Text style={styles.acsText}>{player.stats.acs}</Text>
+                    <Text style={styles.kdaText}>
+                        {player.stats.kills}/{player.stats.deaths}/{player.stats.assists}
+                    </Text>
+                </>
+            )}
+            {isLive && (
+                <>
+                    <Text style={styles.killsText}>{player.stats.kills}</Text>
+                    <Text style={styles.deathsText}>{player.stats.deaths}</Text>
+                    <Text style={styles.assistsText}>{player.stats.assists}</Text>
+                </>
+            )}
         </View>
     );
 };
@@ -145,36 +155,54 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                     <Text style={styles.mapName}>{map.name}</Text>
                     {map.pickedBy && (
                         <Text style={styles.mapPickInfo}>
-                            Picked by {map.pickedBy === match.team1.name ? match.team1.name : match.team2.name}
+                            Picked by {map.pickedBy === match.team1.shortName ? match.team1.name : match.team2.name}
                         </Text>
                     )}
                 </View>
                 <Text style={styles.mapScore}>{map.team1Score} - {map.team2Score}</Text>
             </View>
 
-            <View style={styles.statsTable}>
-                <View style={styles.tableHeader}>
-                    <Text style={[styles.headerCell, styles.playerHeader]}>Player</Text>
-                    <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
-                    <Text style={[styles.headerCell, styles.kdaHeader]}>K/D/A</Text>
+            {/* If the map is upcoming, show a notice instead of stats */}
+            {map.status === 'upcoming' ? (
+                <View style={styles.statsTable}>
+                    <Text style={styles.noDataText}>This map hasn't started yet.</Text>
                 </View>
+            ) : (
+                <View style={styles.statsTable}>
+                    <View style={styles.tableHeader}>
+                        <Text style={[styles.headerCell, styles.playerHeader]}>Player</Text>
+                        {match.status !== 'live' && (
+                            <>
+                                <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
+                                <Text style={[styles.headerCell, styles.kdaHeader]}>K/D/A</Text>
+                            </>
+                        )}
+                        {match.status === 'live' && (
+                            <>
+                                <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
+                                <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
+                                <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
+                            </>
+                        )}
+                    </View>
 
-                {/* Team 1 Players */}
-                <View style={styles.teamSection}>
-                    <Text style={styles.teamLabel}>{match.team1.name}</Text>
-                    {team1Players.map((player, index) => (
-                        <PlayerStatsRow key={index} player={player} />
-                    ))}
-                </View>
+                    {/* Team 1 Players */}
+                    <View style={styles.teamSection}>
+                        <Text style={styles.teamLabel}>{match.team1.name}</Text>
+                        {team1Players.map((player, index) => (
+                            <PlayerStatsRow key={index} player={player} isLive={match.status === 'live'} />
+                        ))}
+                    </View>
 
-                {/* Team 2 Players */}
-                <View style={styles.teamSection}>
-                    <Text style={styles.teamLabel}>{match.team2.name}</Text>
-                    {team2Players.map((player, index) => (
-                        <PlayerStatsRow key={index} player={player} />
-                    ))}
+                    {/* Team 2 Players */}
+                    <View style={styles.teamSection}>
+                        <Text style={styles.teamLabel}>{match.team2.name}</Text>
+                        {team2Players.map((player, index) => (
+                            <PlayerStatsRow key={index} player={player} isLive={match.status === 'live'} />
+                        ))}
+                    </View>
                 </View>
-            </View>
+            )}
         </View>
     );
 };
@@ -184,6 +212,23 @@ export default function MatchDetailPage() {
     const match = useQuery(api.matches.getMatchById, { vlrId: vlrId as string }) as MatchData | null | undefined;
 
     const [selectedMapIndex, setSelectedMapIndex] = useState(0);
+    const hasAutoSelectedLiveMap = useRef(false);
+
+    // Auto-jump to the live map when the match is live
+    useEffect(() => {
+        if (!match) return;
+        if (match.status !== 'live') return;
+        if (hasAutoSelectedLiveMap.current) return;
+        if (!Array.isArray(match.maps) || match.maps.length === 0) return;
+
+        // Compute live index relative to the displayed list during live (includes upcoming)
+        const displayed = match.maps.filter((m: MapData) => m.status !== 'unplayed');
+        const liveIndex = displayed.findIndex((m: MapData) => m.status === 'live');
+        if (liveIndex !== -1) {
+            setSelectedMapIndex(liveIndex);
+        }
+        hasAutoSelectedLiveMap.current = true;
+    }, [match?.status, match?.maps]);
 
     if (!match) {
         return (
@@ -201,10 +246,14 @@ export default function MatchDetailPage() {
         );
     }
 
-    // Filter out unplayed maps
-    const playedMaps = match.maps.filter((map: MapData) => map.status !== 'unplayed' && map.status !== 'upcoming');
+    // Choose which maps to display
+    // - Live match: show live/completed and upcoming maps (but not unplayed)
+    // - Non-live match: hide upcoming and unplayed; show only completed
+    const displayedMaps = match.status === 'live'
+        ? match.maps.filter((map: MapData) => map.status !== 'unplayed')
+        : match.maps.filter((map: MapData) => map.status !== 'unplayed' && map.status !== 'upcoming');
 
-    if (playedMaps.length === 0) {
+    if (displayedMaps.length === 0) {
         return (
             <ScrollView style={styles.container}>
                 <MatchHeader match={match} />
@@ -215,7 +264,7 @@ export default function MatchDetailPage() {
         );
     }
 
-    const currentMap = playedMaps[selectedMapIndex];
+    const currentMap = displayedMaps[selectedMapIndex];
 
     return (
         <ScrollView style={styles.container}>
@@ -223,7 +272,7 @@ export default function MatchDetailPage() {
 
             {/* Map Tabs */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mapTabsContainer}>
-                {playedMaps.map((map, index) => (
+                {displayedMaps.map((map, index) => (
                     <MapTab
                         key={index}
                         map={map}
@@ -427,6 +476,18 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'center',
     },
+    killsHeader: {
+        flex: 1,
+        textAlign: 'center',
+    },
+    deathsHeader: {
+        flex: 1,
+        textAlign: 'center',
+    },
+    assistsHeader: {
+        flex: 1,
+        textAlign: 'center',
+    },
 
     // Team Section Styles
     teamSection: {
@@ -473,6 +534,27 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     kdaText: {
+        flex: 1,
+        color: '#FFFFFF',
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+    },
+    killsText: {
+        flex: 1,
+        color: '#FFFFFF',
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+    },
+    deathsText: {
+        flex: 1,
+        color: '#FFFFFF',
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+    },
+    assistsText: {
         flex: 1,
         color: '#FFFFFF',
         fontFamily: 'Inter_500Medium',

@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { Colors } from '../../theme/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePaginatedQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
@@ -25,7 +26,7 @@ export default function ResultsPage() {
   if (status === 'LoadingFirstPage') {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#ffffff" />
+        <ActivityIndicator size="large" color={Colors.textPrimary} />
       </View>
     );
   }
@@ -43,7 +44,7 @@ export default function ResultsPage() {
           renderItem={({ item }) => <MatchCard match={item} />}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          ListFooterComponent={isLoading ? <ActivityIndicator style={{ margin: 20 }} color="#fff" /> : null}
+          ListFooterComponent={isLoading ? <ActivityIndicator style={{ margin: 20 }} color={Colors.textPrimary} /> : null}
         />
       )}
     </SafeAreaView>
@@ -53,7 +54,7 @@ export default function ResultsPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: Colors.background,
   },
   centered: {
     flex: 1,
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    color: '#A0A0A0',
+    color: Colors.textSecondary,
     // fontFamily: 'Inter_400Regular', // Assuming you have this font loaded
     fontSize: 16,
   }
