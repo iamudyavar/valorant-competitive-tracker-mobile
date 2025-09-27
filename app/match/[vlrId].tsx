@@ -266,7 +266,7 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
 
 
 // Player stats row component
-const PlayerStatsRow = ({ player }: { player: PlayerStats }) => {
+const PlayerStatsRow = ({ player, mapStatus }: { player: PlayerStats; mapStatus: string }) => {
     const plusMinus = player.stats.kills - player.stats.deaths;
 
     const getPlusMinusColor = (value: number) => {
@@ -289,9 +289,8 @@ const PlayerStatsRow = ({ player }: { player: PlayerStats }) => {
             <Text style={[styles.plusMinusText, { color: getPlusMinusColor(plusMinus) }]}>
                 {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
             </Text>
-            <Text style={styles.acsText}>{player.stats.acs}</Text>
-            <Text style={styles.adrText}>{player.stats.adr}</Text>
-            <Text style={styles.kastText}>{player.stats.kastPercent}%</Text>
+            <Text style={styles.acsText}>{mapStatus === 'live' ? '' : player.stats.acs}</Text>
+            <Text style={styles.adrText}>{mapStatus === 'live' ? '' : player.stats.adr}</Text>
             <Text style={styles.hsText}>{player.stats.headshotPercent}%</Text>
             <Text style={styles.fkText}>{player.stats.firstKills}</Text>
             <Text style={styles.fdText}>{player.stats.firstDeaths}</Text>
@@ -303,6 +302,23 @@ const PlayerStatsRow = ({ player }: { player: PlayerStats }) => {
 const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     const team1Players = map.stats.filter(p => p.teamName === match.team1.name);
     const team2Players = map.stats.filter(p => p.teamName === match.team2.name);
+
+    const [scrollX, setScrollX] = useState(0);
+    const [contentWidth, setContentWidth] = useState(0);
+    const [containerWidth, setContainerWidth] = useState(0);
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    const showLeftArrow = scrollX > 0;
+    const showRightArrow = scrollX < contentWidth - containerWidth - 10; // 10px buffer
+
+    const scrollToLeft = () => {
+        scrollViewRef.current?.scrollTo({ x: 0, animated: true });
+    };
+
+    const scrollToRight = () => {
+        const maxScrollX = contentWidth - containerWidth;
+        scrollViewRef.current?.scrollTo({ x: maxScrollX, animated: true });
+    };
 
     return (
         <View style={styles.mapStatsContainer}>
@@ -338,11 +354,36 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                 </View>
             ) : (
                 <View style={styles.statsTable}>
+                    {/* Scroll Indicators Above Header */}
+                    <View style={styles.scrollIndicatorsContainer}>
+                        {showLeftArrow && (
+                            <Pressable style={styles.scrollIndicatorLeft} onPress={scrollToLeft}>
+                                <Text style={styles.scrollArrow}>‹</Text>
+                            </Pressable>
+                        )}
+                        {showRightArrow && (
+                            <Pressable style={styles.scrollIndicatorRight} onPress={scrollToRight}>
+                                <Text style={styles.scrollArrow}>›</Text>
+                            </Pressable>
+                        )}
+                    </View>
+
                     <ScrollView
+                        ref={scrollViewRef}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         style={styles.tableScrollContainer}
                         contentContainerStyle={styles.tableScrollContent}
+                        onScroll={(event) => {
+                            setScrollX(event.nativeEvent.contentOffset.x);
+                        }}
+                        onContentSizeChange={(contentWidth) => {
+                            setContentWidth(contentWidth);
+                        }}
+                        onLayout={(event) => {
+                            setContainerWidth(event.nativeEvent.layout.width);
+                        }}
+                        scrollEventThrottle={16}
                     >
                         <View style={styles.tableContainer}>
                             <View style={styles.tableHeader}>
@@ -353,7 +394,6 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
                                 <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
                                 <Text style={[styles.headerCell, styles.adrHeader]}>ADR</Text>
-                                <Text style={[styles.headerCell, styles.kastHeader]}>KAST%</Text>
                                 <Text style={[styles.headerCell, styles.hsHeader]}>HS%</Text>
                                 <Text style={[styles.headerCell, styles.fkHeader]}>FK</Text>
                                 <Text style={[styles.headerCell, styles.fdHeader]}>FD</Text>
@@ -363,7 +403,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                             <View style={styles.teamSection}>
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
                                 {team1Players.map((player, index) => (
-                                    <PlayerStatsRow key={index} player={player} />
+                                    <PlayerStatsRow key={index} player={player} mapStatus={map.status} />
                                 ))}
                             </View>
 
@@ -371,7 +411,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                             <View style={styles.teamSection}>
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
                                 {team2Players.map((player, index) => (
-                                    <PlayerStatsRow key={index} player={player} />
+                                    <PlayerStatsRow key={index} player={player} mapStatus={map.status} />
                                 ))}
                             </View>
                         </View>
@@ -676,7 +716,7 @@ const styles = StyleSheet.create({
         paddingRight: 0, // Remove any extra padding that might cause dead space
     },
     tableContainer: {
-        minWidth: 640, // Exact width needed for all columns (180+50+50+50+60+60+60+70+60+50+50)
+        minWidth: 500, // Exact width needed for all columns (140+40+40+40+50+50+50+50+40+40)
     },
     tableHeader: {
         flexDirection: 'row',
@@ -694,14 +734,14 @@ const styles = StyleSheet.create({
     },
     playerHeader: {
         textAlign: 'left',
-        width: 180, // Increased to match playerInfo width
+        width: 140, // Further reduced to decrease spacing with K/D/A columns
     },
     acsHeader: {
-        width: 60,
+        width: 50,
         textAlign: 'center',
     },
     adrHeader: {
-        width: 60,
+        width: 50,
         textAlign: 'center',
     },
     kastHeader: {
@@ -709,15 +749,15 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     hsHeader: {
-        width: 60,
+        width: 50,
         textAlign: 'center',
     },
     fkHeader: {
-        width: 50,
+        width: 40,
         textAlign: 'center',
     },
     fdHeader: {
-        width: 50,
+        width: 40,
         textAlign: 'center',
     },
     kdaHeader: {
@@ -725,19 +765,19 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     killsHeader: {
-        width: 50,
+        width: 40,
         textAlign: 'center',
     },
     deathsHeader: {
-        width: 50,
+        width: 40,
         textAlign: 'center',
     },
     assistsHeader: {
-        width: 50,
+        width: 40,
         textAlign: 'center',
     },
     plusMinusHeader: {
-        width: 60,
+        width: 50,
         textAlign: 'center',
     },
 
@@ -763,7 +803,7 @@ const styles = StyleSheet.create({
     playerInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        width: 180, // Increased slightly from 160 for better spacing
+        width: 140, // Further reduced to match header and decrease spacing with K/D/A columns
     },
     playerName: {
         color: Colors.textPrimary,
@@ -782,14 +822,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 60,
+        width: 50,
     },
     adrText: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 60,
+        width: 50,
     },
     kastText: {
         color: Colors.textPrimary,
@@ -803,21 +843,21 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 60,
+        width: 50,
     },
     fkText: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 50,
+        width: 40,
     },
     fdText: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 50,
+        width: 40,
     },
     kdaText: {
         color: Colors.textPrimary,
@@ -831,27 +871,27 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 50,
+        width: 40,
     },
     deathsText: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 50,
+        width: 40,
     },
     assistsText: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
-        width: 50,
+        width: 40,
     },
     plusMinusText: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
         textAlign: 'center',
-        width: 60,
+        width: 50,
     },
 
     // Timeline Styles
@@ -958,5 +998,42 @@ const styles = StyleSheet.create({
         width: 8,
         height: 2,
         zIndex: -1,
+    },
+
+    // Scroll Indicator Styles
+    scrollIndicatorsContainer: {
+        position: 'relative',
+        height: 20,
+        marginBottom: 8,
+    },
+    scrollIndicatorLeft: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderRadius: 4,
+        zIndex: 1,
+    },
+    scrollIndicatorRight: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderRadius: 4,
+        zIndex: 1,
+    },
+    scrollArrow: {
+        color: Colors.textSecondary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        opacity: 0.8,
     },
 });
