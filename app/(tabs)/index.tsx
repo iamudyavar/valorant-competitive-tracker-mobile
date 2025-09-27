@@ -43,6 +43,7 @@ export default function HomePage() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
+        contentInsetAdjustmentBehavior="automatic"
       >
         {isEmpty ? (
           <View style={styles.centered}>
