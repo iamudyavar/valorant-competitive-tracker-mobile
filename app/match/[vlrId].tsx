@@ -105,18 +105,171 @@ const MatchHeader = ({ match }: { match: MatchData }) => (
 // Map tab component
 const MapTab = ({ map, isActive, onPress }: { map: MapData; isActive: boolean; onPress: () => void }) => (
     <Pressable
-        style={[styles.mapTab, isActive && styles.activeMapTab]}
+        style={[styles.mapTab, isActive && styles.activeMapTab, map.status === 'live' && styles.liveMapTab]}
         onPress={onPress}
     >
-        <Text style={[styles.mapTabText, isActive && styles.activeMapTabText]}>
-            {map.name}
-        </Text>
+        <View style={styles.mapTabContent}>
+            <Text style={[styles.mapTabText, isActive && styles.activeMapTabText]}>
+                {map.name}
+            </Text>
+            {map.status === 'live' && (
+                <View style={styles.liveDot} />
+            )}
+        </View>
     </Pressable>
 );
+
+// Win condition icon component
+const WinConditionIcon = ({ condition }: { condition: string | null }) => {
+    if (!condition) return null;
+
+    const iconUrl = `https://www.vlr.gg/img/vlr/game/round/${condition}.webp`;
+
+    return (
+        <Image
+            source={{ uri: iconUrl }}
+            style={styles.winConditionIcon}
+            resizeMode="contain"
+        />
+    );
+};
+
+// Round timeline component
+const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
+    const [expandedRounds, setExpandedRounds] = useState<Set<number>>(new Set());
+
+    const toggleRoundExpansion = (roundNumber: number) => {
+        const newExpanded = new Set(expandedRounds);
+        if (newExpanded.has(roundNumber)) {
+            newExpanded.delete(roundNumber);
+        } else {
+            newExpanded.add(roundNumber);
+        }
+        setExpandedRounds(newExpanded);
+    };
+
+    const getTeamColor = (teamName: string | null) => {
+        if (!teamName) return Colors.textMuted;
+        return teamName === match.team1.name ? '#3b82f6' : '#FF4655';
+    };
+
+    const getTeamShortName = (teamName: string | null) => {
+        if (!teamName) return 'TBD';
+        return teamName === match.team1.name ? match.team1.shortName : match.team2.shortName;
+    };
+
+    const getWinConditionText = (condition: string | null) => {
+        switch (condition) {
+            case 'elim': return 'Elimination';
+            case 'boom': return 'Bomb Exploded';
+            case 'defuse': return 'Bomb Defused';
+            case 'time': return 'Time Expired';
+            default: return 'TBD';
+        }
+    };
+
+    const completedRounds = map.rounds.filter(round => round.winningTeam !== null);
+    const totalRounds = map.rounds.length;
+    const team1Wins = completedRounds.filter(round => round.winningTeam === match.team1.name).length;
+    const team2Wins = completedRounds.filter(round => round.winningTeam === match.team2.name).length;
+
+    return (
+        <View style={styles.timelineContainer}>
+            <View style={styles.timelineHeader}>
+                <Text style={styles.timelineTitle}>Round Timeline</Text>
+                <View style={styles.timelineScore}>
+                    <Text style={[styles.timelineScoreText, { color: '#3b82f6' }]}>
+                        {match.team1.shortName} {team1Wins}
+                    </Text>
+                    <Text style={styles.timelineScoreText}> - </Text>
+                    <Text style={[styles.timelineScoreText, { color: '#FF4655' }]}>
+                        {team2Wins} {match.team2.shortName}
+                    </Text>
+                </View>
+            </View>
+
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.timelineScrollView}
+                contentContainerStyle={styles.timelineContent}
+            >
+                {map.rounds.map((round, index) => {
+                    const isCompleted = round.winningTeam !== null;
+                    const isExpanded = expandedRounds.has(round.roundNumber);
+                    const teamColor = getTeamColor(round.winningTeam);
+                    const isLastRound = index === map.rounds.length - 1;
+
+                    return (
+                        <View key={round.roundNumber} style={styles.roundContainer}>
+                            <Pressable
+                                style={[
+                                    styles.roundItem,
+                                    isCompleted && styles.completedRound,
+                                    !isCompleted && styles.pendingRound,
+                                    { borderColor: isCompleted ? teamColor : Colors.divider }
+                                ]}
+                                onPress={() => toggleRoundExpansion(round.roundNumber)}
+                            >
+                                <Text style={[
+                                    styles.roundNumber,
+                                    { color: isCompleted ? teamColor : Colors.textMuted }
+                                ]}>
+                                    {round.roundNumber}
+                                </Text>
+
+                                {isCompleted && (
+                                    <View style={styles.roundDetails}>
+                                        <Text style={[styles.winningTeam, { color: teamColor }]}>
+                                            {getTeamShortName(round.winningTeam)}
+                                        </Text>
+                                        <WinConditionIcon condition={round.winCondition} />
+                                    </View>
+                                )}
+
+                                {!isCompleted && (
+                                    <Text style={styles.pendingText}>TBD</Text>
+                                )}
+                            </Pressable>
+
+                            {/* Expanded round details */}
+                            {isExpanded && isCompleted && (
+                                <View style={styles.expandedDetails}>
+                                    <Text style={styles.expandedTeamName}>
+                                        {round.winningTeam}
+                                    </Text>
+                                    <Text style={styles.expandedWinCondition}>
+                                        {getWinConditionText(round.winCondition)}
+                                    </Text>
+                                </View>
+                            )}
+
+                            {/* Connecting line to next round */}
+                            {!isLastRound && (
+                                <View style={[
+                                    styles.connectingLine,
+                                    { backgroundColor: isCompleted ? teamColor : Colors.divider }
+                                ]} />
+                            )}
+                        </View>
+                    );
+                })}
+            </ScrollView>
+        </View>
+    );
+};
 
 
 // Player stats row component
 const PlayerStatsRow = ({ player, isLive }: { player: PlayerStats; isLive: boolean }) => {
+    const plusMinus = player.stats.kills - player.stats.deaths;
+
+    const getPlusMinusColor = (value: number) => {
+        if (value > 0) return '#10B981'; // Green for positive
+        if (value < 0) return '#EF4444'; // Red for negative
+        return Colors.textPrimary; // Normal color for zero
+    };
+
     return (
         <View style={styles.playerRow}>
             <View style={styles.playerInfo}>
@@ -138,6 +291,9 @@ const PlayerStatsRow = ({ player, isLive }: { player: PlayerStats; isLive: boole
                     <Text style={styles.killsText}>{player.stats.kills}</Text>
                     <Text style={styles.deathsText}>{player.stats.deaths}</Text>
                     <Text style={styles.assistsText}>{player.stats.assists}</Text>
+                    <Text style={[styles.plusMinusText, { color: getPlusMinusColor(plusMinus) }]}>
+                        {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
+                    </Text>
                 </>
             )}
         </View>
@@ -153,7 +309,15 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
         <View style={styles.mapStatsContainer}>
             <View style={styles.mapHeader}>
                 <View style={styles.mapInfo}>
-                    <Text style={styles.mapName}>{map.name}</Text>
+                    <View style={styles.mapNameContainer}>
+                        <Text style={styles.mapName}>{map.name}</Text>
+                        {map.status === 'live' && (
+                            <View style={styles.mapLiveIndicator}>
+                                <View style={styles.mapLiveDot} />
+                                <Text style={styles.mapLiveText}>LIVE</Text>
+                            </View>
+                        )}
+                    </View>
                     {map.pickedBy && (
                         <Text style={styles.mapPickInfo}>
                             Picked by {map.pickedBy === match.team1.shortName ? match.team1.shortName : match.team2.shortName}
@@ -162,6 +326,11 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                 </View>
                 <Text style={styles.mapScore}>{map.team1Score} - {map.team2Score}</Text>
             </View>
+
+            {/* Round Timeline */}
+            {map.status !== 'upcoming' && (
+                <RoundTimeline map={map} match={match} />
+            )}
 
             {/* If the map is upcoming, show a notice instead of stats */}
             {map.status === 'upcoming' ? (
@@ -183,6 +352,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
                                 <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
                                 <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
+                                <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
                             </>
                         )}
                     </View>
@@ -412,6 +582,21 @@ const styles = StyleSheet.create({
     activeMapTabText: {
         color: Colors.textPrimary,
     },
+    liveMapTab: {
+        // Green border removed
+    },
+    mapTabContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    liveDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#FFFFFF',
+        marginLeft: 6,
+    },
 
     // Map Stats Styles
     mapStatsContainer: {
@@ -432,11 +617,37 @@ const styles = StyleSheet.create({
     mapInfo: {
         flex: 1,
     },
+    mapNameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
     mapName: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 20,
-        marginBottom: 4,
+    },
+    mapLiveIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    mapLiveDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#FFFFFF',
+        marginRight: 6,
+    },
+    mapLiveText: {
+        color: '#FFFFFF',
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 12,
+        letterSpacing: 0.5,
     },
     mapPickInfo: {
         color: Colors.textSecondary,
@@ -466,7 +677,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     playerHeader: {
-        flex: 2,
+        flex: 2.5,
         textAlign: 'left',
     },
     acsHeader: {
@@ -489,6 +700,11 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'center',
     },
+    plusMinusHeader: {
+        flex: 1,
+        textAlign: 'center',
+        minWidth: 30,
+    },
 
     // Team Section Styles
     teamSection: {
@@ -506,12 +722,12 @@ const styles = StyleSheet.create({
     playerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
+        paddingVertical: 10,
         borderBottomWidth: 1,
         borderBottomColor: Colors.dividerSecondary,
     },
     playerInfo: {
-        flex: 2,
+        flex: 2.5,
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -523,9 +739,9 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     agentIcon: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
     },
     acsText: {
         flex: 1,
@@ -561,5 +777,118 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
+    },
+    plusMinusText: {
+        flex: 1,
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 16,
+        textAlign: 'center',
+        minWidth: 30,
+    },
+
+    // Timeline Styles
+    timelineContainer: {
+        backgroundColor: Colors.surface,
+        marginBottom: 8,
+        paddingVertical: 16,
+    },
+    timelineHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginBottom: 16,
+    },
+    timelineTitle: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 18,
+    },
+    timelineScore: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    timelineScoreText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 16,
+    },
+    timelineScrollView: {
+        paddingHorizontal: 20,
+    },
+    timelineContent: {
+        paddingRight: 20,
+    },
+    roundContainer: {
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    roundItem: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        borderWidth: 2,
+        backgroundColor: Colors.surfaceSecondary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    completedRound: {
+        backgroundColor: Colors.surface,
+    },
+    pendingRound: {
+        backgroundColor: Colors.surfaceSecondary,
+        opacity: 0.6,
+    },
+    roundNumber: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 14,
+        marginBottom: 2,
+    },
+    roundDetails: {
+        alignItems: 'center',
+    },
+    winningTeam: {
+        fontFamily: 'Inter_500Medium',
+        fontSize: 10,
+        marginBottom: 2,
+    },
+    winConditionIcon: {
+        width: 16,
+        height: 16,
+    },
+    pendingText: {
+        color: Colors.textMuted,
+        fontFamily: 'Inter_400Regular',
+        fontSize: 10,
+    },
+    expandedDetails: {
+        backgroundColor: Colors.surfaceSecondary,
+        padding: 8,
+        borderRadius: 8,
+        marginTop: 4,
+        minWidth: 80,
+        alignItems: 'center',
+    },
+    expandedTeamName: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 12,
+        marginBottom: 2,
+    },
+    expandedWinCondition: {
+        color: Colors.textSecondary,
+        fontFamily: 'Inter_400Regular',
+        fontSize: 10,
+        textAlign: 'center',
+    },
+    connectingLine: {
+        position: 'absolute',
+        top: 30,
+        left: 60,
+        width: 8,
+        height: 2,
+        zIndex: -1,
     },
 });
