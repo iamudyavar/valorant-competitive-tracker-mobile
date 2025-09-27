@@ -102,7 +102,7 @@ const formatTime = (timeString: string) => {
 const TeamDisplay = ({ name, score, logoUrl, isWinner, showScore }: { name: string; score: number; logoUrl: string; isWinner: boolean; showScore: boolean }) => (
     <View style={styles.teamContainer}>
         <Image source={{ uri: logoUrl }} style={styles.teamLogo} onError={(e) => console.log(e.nativeEvent.error)} />
-        <Text style={[styles.teamName, isWinner && styles.winnerName]}>{name}</Text>
+        <Text style={[styles.teamName, isWinner && styles.winnerName]} numberOfLines={1} ellipsizeMode="tail">{name}</Text>
         {showScore && (
             <Text style={[styles.teamScore, isWinner && styles.winnerScore]}>{score}</Text>
         )}

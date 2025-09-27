@@ -1,18 +1,20 @@
 export const Colors = {
     // Base surfaces
-    background: '#1A1A1A',
-    surface: '#262626',
+    background: '#2A2A2A',
+    surface: '#363636',
+    surfaceSecondary: '#404040',
     // Text
     textPrimary: '#FFFFFF',
-    textSecondary: '#A6A6A6',
-    textMuted: '#CFCFCF',
+    textSecondary: '#B6B6B6',
+    textMuted: '#D9D9D9',
     // Accents
     accent: '#3b82f6',
     danger: '#FF4655',
     // Borders/Dividers
-    divider: '#454545',
+    divider: '#555555',
+    dividerSecondary: '#4A4A4A',
     // Shadows
-    shadow: '#000000',
+    shadow: '#1A1A1A',
 };
 
 export type AppColors = typeof Colors;

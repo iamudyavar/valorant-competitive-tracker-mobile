@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Pressable
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { useState, useEffect, useRef } from 'react';
+import { Colors } from '../../theme/colors';
 
 // Type definitions based on the Convex schema
 interface PlayerStats {
@@ -81,7 +82,7 @@ const MatchHeader = ({ match }: { match: MatchData }) => (
         <View style={styles.teamsContainer}>
             <View style={styles.teamHeaderSection}>
                 <Image source={{ uri: match.team1.logoUrl }} style={styles.teamLogo} />
-                <Text style={styles.teamName}>{match.team1.name}</Text>
+                <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team1.name}</Text>
             </View>
 
             <View style={styles.scoreSection}>
@@ -95,7 +96,7 @@ const MatchHeader = ({ match }: { match: MatchData }) => (
 
             <View style={styles.teamHeaderSection}>
                 <Image source={{ uri: match.team2.logoUrl }} style={styles.teamLogo} />
-                <Text style={styles.teamName}>{match.team2.name}</Text>
+                <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team2.name}</Text>
             </View>
         </View>
     </View>
@@ -155,7 +156,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                     <Text style={styles.mapName}>{map.name}</Text>
                     {map.pickedBy && (
                         <Text style={styles.mapPickInfo}>
-                            Picked by {map.pickedBy === match.team1.shortName ? match.team1.name : match.team2.name}
+                            Picked by {map.pickedBy === match.team1.shortName ? match.team1.shortName : match.team2.shortName}
                         </Text>
                     )}
                 </View>
@@ -188,7 +189,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
                     {/* Team 1 Players */}
                     <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel}>{match.team1.name}</Text>
+                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.name}</Text>
                         {team1Players.map((player, index) => (
                             <PlayerStatsRow key={index} player={player} isLive={match.status === 'live'} />
                         ))}
@@ -196,7 +197,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
                     {/* Team 2 Players */}
                     <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel}>{match.team2.name}</Text>
+                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.name}</Text>
                         {team2Players.map((player, index) => (
                             <PlayerStatsRow key={index} player={player} isLive={match.status === 'live'} />
                         ))}
@@ -291,16 +292,16 @@ export default function MatchDetailPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F0F0F',
+        backgroundColor: Colors.background,
     },
     centered: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#0F0F0F',
+        backgroundColor: Colors.background,
     },
     errorText: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontFamily: 'Inter_400Regular',
         fontSize: 16,
     },
@@ -309,14 +310,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     noDataText: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontFamily: 'Inter_400Regular',
         fontSize: 16,
     },
 
     // Match Header Styles
     matchHeader: {
-        backgroundColor: '#1A1A1A',
+        backgroundColor: Colors.surface,
         padding: 20,
         marginBottom: 8,
     },
@@ -325,13 +326,13 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     eventName: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
         marginBottom: 4,
     },
     eventSeries: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
     },
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     teamName: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
         textAlign: 'center',
@@ -361,13 +362,13 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
     },
     scoreText: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_700Bold',
         fontSize: 32,
         marginBottom: 8,
     },
     statusBadge: {
-        backgroundColor: '#333333',
+        backgroundColor: Colors.divider,
         paddingHorizontal: 12,
         paddingVertical: 4,
         borderRadius: 12,
@@ -376,23 +377,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#FF4655',
     },
     statusText: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 12,
     },
     liveText: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
     },
 
     // Map Tabs Styles
     mapTabsContainer: {
-        backgroundColor: '#1A1A1A',
+        backgroundColor: Colors.surface,
         paddingHorizontal: 16,
         paddingVertical: 12,
         marginBottom: 8,
     },
     mapTab: {
-        backgroundColor: '#2A2A2A',
+        backgroundColor: Colors.surfaceSecondary,
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 6,
@@ -404,17 +405,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#FF4655',
     },
     mapTabText: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
     },
     activeMapTabText: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
     },
 
     // Map Stats Styles
     mapStatsContainer: {
-        backgroundColor: '#1A1A1A',
+        backgroundColor: Colors.surface,
         marginHorizontal: 16,
         marginBottom: 16,
         borderRadius: 8,
@@ -426,24 +427,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#333333',
+        borderBottomColor: Colors.divider,
     },
     mapInfo: {
         flex: 1,
     },
     mapName: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 20,
         marginBottom: 4,
     },
     mapPickInfo: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
     },
     mapScore: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_700Bold',
         fontSize: 22,
     },
@@ -456,11 +457,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingBottom: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#333333',
+        borderBottomColor: Colors.divider,
         marginBottom: 16,
     },
     headerCell: {
-        color: '#A0A0A0',
+        color: Colors.textSecondary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
     },
@@ -494,7 +495,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     teamLabel: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
         marginBottom: 8,
@@ -507,7 +508,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: '#2A2A2A',
+        borderBottomColor: Colors.dividerSecondary,
     },
     playerInfo: {
         flex: 2,
@@ -515,7 +516,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     playerName: {
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         flex: 1,
@@ -528,35 +529,35 @@ const styles = StyleSheet.create({
     },
     acsText: {
         flex: 1,
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
     },
     kdaText: {
         flex: 1,
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
     },
     killsText: {
         flex: 1,
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
     },
     deathsText: {
         flex: 1,
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
     },
     assistsText: {
         flex: 1,
-        color: '#FFFFFF',
+        color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
