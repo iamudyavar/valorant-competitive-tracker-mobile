@@ -338,7 +338,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
                     {/* Team 1 Players */}
                     <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
+                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.name}</Text>
                         {team1Players.map((player, index) => (
                             <PlayerStatsRow key={index} player={player} />
                         ))}
@@ -346,7 +346,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
                     {/* Team 2 Players */}
                     <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
+                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.name}</Text>
                         {team2Players.map((player, index) => (
                             <PlayerStatsRow key={index} player={player} />
                         ))}
