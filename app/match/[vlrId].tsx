@@ -194,12 +194,16 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
                 style={styles.timelineScrollView}
                 contentContainerStyle={styles.timelineContent}
             >
-                {map.rounds.filter(round => round.winCondition !== null).map((round, index) => {
-                    const isCompleted = round.winningTeam !== null;
+                {map.rounds.filter(round =>
+                    map.status === 'completed' ? round.winCondition !== null : true
+                ).map((round, index) => {
+                    const isCompleted = round.winningTeam !== null && round.winCondition !== null;
                     const isExpanded = expandedRounds.has(round.roundNumber);
                     const teamColor = getTeamColor(round.winningTeam);
-                    const playedRounds = map.rounds.filter(round => round.winCondition !== null);
-                    const isLastRound = index === playedRounds.length - 1;
+                    const filteredRounds = map.rounds.filter(round =>
+                        map.status === 'completed' ? round.winCondition !== null : true
+                    );
+                    const isLastRound = index === filteredRounds.length - 1;
 
                     return (
                         <View key={round.roundNumber} style={styles.roundContainer}>
@@ -285,6 +289,12 @@ const PlayerStatsRow = ({ player }: { player: PlayerStats }) => {
             <Text style={[styles.plusMinusText, { color: getPlusMinusColor(plusMinus) }]}>
                 {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
             </Text>
+            <Text style={styles.acsText}>{player.stats.acs}</Text>
+            <Text style={styles.adrText}>{player.stats.adr}</Text>
+            <Text style={styles.kastText}>{player.stats.kastPercent}%</Text>
+            <Text style={styles.hsText}>{player.stats.headshotPercent}%</Text>
+            <Text style={styles.fkText}>{player.stats.firstKills}</Text>
+            <Text style={styles.fdText}>{player.stats.firstDeaths}</Text>
         </View>
     );
 };
@@ -328,29 +338,44 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                 </View>
             ) : (
                 <View style={styles.statsTable}>
-                    <View style={styles.tableHeader}>
-                        <Text style={[styles.headerCell, styles.playerHeader]}>Player</Text>
-                        <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
-                        <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
-                        <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
-                        <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
-                    </View>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.tableScrollContainer}
+                        contentContainerStyle={styles.tableScrollContent}
+                    >
+                        <View style={styles.tableContainer}>
+                            <View style={styles.tableHeader}>
+                                <Text style={[styles.headerCell, styles.playerHeader]}>Player</Text>
+                                <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
+                                <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
+                                <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
+                                <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
+                                <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
+                                <Text style={[styles.headerCell, styles.adrHeader]}>ADR</Text>
+                                <Text style={[styles.headerCell, styles.kastHeader]}>KAST%</Text>
+                                <Text style={[styles.headerCell, styles.hsHeader]}>HS%</Text>
+                                <Text style={[styles.headerCell, styles.fkHeader]}>FK</Text>
+                                <Text style={[styles.headerCell, styles.fdHeader]}>FD</Text>
+                            </View>
 
-                    {/* Team 1 Players */}
-                    <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.name}</Text>
-                        {team1Players.map((player, index) => (
-                            <PlayerStatsRow key={index} player={player} />
-                        ))}
-                    </View>
+                            {/* Team 1 Players */}
+                            <View style={styles.teamSection}>
+                                <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
+                                {team1Players.map((player, index) => (
+                                    <PlayerStatsRow key={index} player={player} />
+                                ))}
+                            </View>
 
-                    {/* Team 2 Players */}
-                    <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.name}</Text>
-                        {team2Players.map((player, index) => (
-                            <PlayerStatsRow key={index} player={player} />
-                        ))}
-                    </View>
+                            {/* Team 2 Players */}
+                            <View style={styles.teamSection}>
+                                <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
+                                {team2Players.map((player, index) => (
+                                    <PlayerStatsRow key={index} player={player} />
+                                ))}
+                            </View>
+                        </View>
+                    </ScrollView>
                 </View>
             )}
         </View>
@@ -643,6 +668,16 @@ const styles = StyleSheet.create({
     statsTable: {
         padding: 16,
     },
+    tableScrollContainer: {
+        flex: 1,
+    },
+    tableScrollContent: {
+        flexGrow: 1,
+        paddingRight: 0, // Remove any extra padding that might cause dead space
+    },
+    tableContainer: {
+        minWidth: 640, // Exact width needed for all columns (180+50+50+50+60+60+60+70+60+50+50)
+    },
     tableHeader: {
         flexDirection: 'row',
         paddingBottom: 12,
@@ -654,35 +689,56 @@ const styles = StyleSheet.create({
         color: Colors.textSecondary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
+        textAlign: 'center',
+        width: 60, // Fixed width for all columns
     },
     playerHeader: {
-        flex: 2.5,
         textAlign: 'left',
+        width: 180, // Increased to match playerInfo width
     },
     acsHeader: {
-        flex: 1,
+        width: 60,
+        textAlign: 'center',
+    },
+    adrHeader: {
+        width: 60,
+        textAlign: 'center',
+    },
+    kastHeader: {
+        width: 70,
+        textAlign: 'center',
+    },
+    hsHeader: {
+        width: 60,
+        textAlign: 'center',
+    },
+    fkHeader: {
+        width: 50,
+        textAlign: 'center',
+    },
+    fdHeader: {
+        width: 50,
         textAlign: 'center',
     },
     kdaHeader: {
-        flex: 1,
+        width: 60,
         textAlign: 'center',
     },
     killsHeader: {
-        flex: 1,
+        width: 50,
         textAlign: 'center',
     },
     deathsHeader: {
-        flex: 1,
+        width: 50,
         textAlign: 'center',
     },
     assistsHeader: {
-        flex: 1,
+        width: 50,
         textAlign: 'center',
     },
     plusMinusHeader: {
-        flex: 1,
+        width: 60,
         textAlign: 'center',
-        minWidth: 30,
     },
 
     // Team Section Styles
@@ -705,16 +761,16 @@ const styles = StyleSheet.create({
         borderBottomColor: Colors.dividerSecondary,
     },
     playerInfo: {
-        flex: 2.5,
         flexDirection: 'row',
         alignItems: 'center',
+        width: 180, // Increased slightly from 160 for better spacing
     },
     playerName: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         flex: 1,
-        marginLeft: 8,
+        marginLeft: 6, // Increased slightly from 4 for better spacing
     },
     agentIcon: {
         width: 28,
@@ -722,46 +778,80 @@ const styles = StyleSheet.create({
         borderRadius: 14,
     },
     acsText: {
-        flex: 1,
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
+        width: 60,
+    },
+    adrText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+        width: 60,
+    },
+    kastText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+        width: 70,
+    },
+    hsText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+        width: 60,
+    },
+    fkText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+        width: 50,
+    },
+    fdText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+        width: 50,
     },
     kdaText: {
-        flex: 1,
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
+        width: 60,
     },
     killsText: {
-        flex: 1,
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
+        width: 50,
     },
     deathsText: {
-        flex: 1,
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
+        width: 50,
     },
     assistsText: {
-        flex: 1,
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
+        width: 50,
     },
     plusMinusText: {
-        flex: 1,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
         textAlign: 'center',
-        minWidth: 30,
+        width: 60,
     },
 
     // Timeline Styles
@@ -774,7 +864,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: 16, // Match the statsTable padding
         marginBottom: 16,
     },
     timelineTitle: {
@@ -792,10 +882,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     timelineScrollView: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 16, // Match timelineHeader padding
     },
     timelineContent: {
-        paddingRight: 20,
+        paddingRight: 0, // Remove extra padding that might cause dead space
     },
     roundContainer: {
         alignItems: 'center',
