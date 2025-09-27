@@ -4,7 +4,7 @@
     "slug": "vlr-clone",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/vlrclone.icon",
+    "icon": "./assets/images/icon.png",
     "scheme": "vlrclone",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
