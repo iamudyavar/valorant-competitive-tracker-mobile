@@ -3,7 +3,6 @@ import { ConvexClientProvider } from '../providers/ConvexClientProvider';
 import { Colors } from '../theme/colors';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 
 export default function RootLayout() {
     // Load fonts for the application
@@ -24,7 +23,6 @@ export default function RootLayout() {
 
     return (
         <ConvexClientProvider>
-            <StatusBar style="light" />
             <Stack screenOptions={{
                 headerStyle: {
                     backgroundColor: Colors.surface,
