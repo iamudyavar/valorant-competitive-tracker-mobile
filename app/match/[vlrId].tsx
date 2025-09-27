@@ -194,11 +194,12 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
                 style={styles.timelineScrollView}
                 contentContainerStyle={styles.timelineContent}
             >
-                {map.rounds.map((round, index) => {
+                {map.rounds.filter(round => round.winCondition !== null).map((round, index) => {
                     const isCompleted = round.winningTeam !== null;
                     const isExpanded = expandedRounds.has(round.roundNumber);
                     const teamColor = getTeamColor(round.winningTeam);
-                    const isLastRound = index === map.rounds.length - 1;
+                    const playedRounds = map.rounds.filter(round => round.winCondition !== null);
+                    const isLastRound = index === playedRounds.length - 1;
 
                     return (
                         <View key={round.roundNumber} style={styles.roundContainer}>
@@ -261,7 +262,7 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
 
 
 // Player stats row component
-const PlayerStatsRow = ({ player, isLive }: { player: PlayerStats; isLive: boolean }) => {
+const PlayerStatsRow = ({ player }: { player: PlayerStats }) => {
     const plusMinus = player.stats.kills - player.stats.deaths;
 
     const getPlusMinusColor = (value: number) => {
@@ -278,24 +279,12 @@ const PlayerStatsRow = ({ player, isLive }: { player: PlayerStats; isLive: boole
                 )}
                 <Text style={styles.playerName}>{player.playerName}</Text>
             </View>
-            {!isLive && (
-                <>
-                    <Text style={styles.acsText}>{player.stats.acs}</Text>
-                    <Text style={styles.kdaText}>
-                        {player.stats.kills}/{player.stats.deaths}/{player.stats.assists}
-                    </Text>
-                </>
-            )}
-            {isLive && (
-                <>
-                    <Text style={styles.killsText}>{player.stats.kills}</Text>
-                    <Text style={styles.deathsText}>{player.stats.deaths}</Text>
-                    <Text style={styles.assistsText}>{player.stats.assists}</Text>
-                    <Text style={[styles.plusMinusText, { color: getPlusMinusColor(plusMinus) }]}>
-                        {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
-                    </Text>
-                </>
-            )}
+            <Text style={styles.killsText}>{player.stats.kills}</Text>
+            <Text style={styles.deathsText}>{player.stats.deaths}</Text>
+            <Text style={styles.assistsText}>{player.stats.assists}</Text>
+            <Text style={[styles.plusMinusText, { color: getPlusMinusColor(plusMinus) }]}>
+                {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
+            </Text>
         </View>
     );
 };
@@ -341,35 +330,25 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                 <View style={styles.statsTable}>
                     <View style={styles.tableHeader}>
                         <Text style={[styles.headerCell, styles.playerHeader]}>Player</Text>
-                        {match.status !== 'live' && (
-                            <>
-                                <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
-                                <Text style={[styles.headerCell, styles.kdaHeader]}>K/D/A</Text>
-                            </>
-                        )}
-                        {match.status === 'live' && (
-                            <>
-                                <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
-                                <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
-                                <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
-                                <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
-                            </>
-                        )}
+                        <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
+                        <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
+                        <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
+                        <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
                     </View>
 
                     {/* Team 1 Players */}
                     <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.name}</Text>
+                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
                         {team1Players.map((player, index) => (
-                            <PlayerStatsRow key={index} player={player} isLive={match.status === 'live'} />
+                            <PlayerStatsRow key={index} player={player} />
                         ))}
                     </View>
 
                     {/* Team 2 Players */}
                     <View style={styles.teamSection}>
-                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.name}</Text>
+                        <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
                         {team2Players.map((player, index) => (
-                            <PlayerStatsRow key={index} player={player} isLive={match.status === 'live'} />
+                            <PlayerStatsRow key={index} player={player} />
                         ))}
                     </View>
                 </View>
@@ -715,7 +694,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
         marginBottom: 8,
-        paddingLeft: 4,
     },
 
     // Player Row Styles
