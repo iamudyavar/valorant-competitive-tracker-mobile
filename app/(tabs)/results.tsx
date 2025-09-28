@@ -6,7 +6,7 @@ import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
 import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 type MatchCard = {
   vlrId: string;

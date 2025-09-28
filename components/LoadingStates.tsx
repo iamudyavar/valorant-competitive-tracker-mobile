@@ -3,12 +3,6 @@ import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'rea
 import { Colors } from '../theme/colors';
 import { useNetwork } from '../providers/NetworkProvider';
 
-interface LoadingStateProps {
-    message?: string;
-    showRetry?: boolean;
-    onRetry?: () => void;
-}
-
 export function LoadingSpinner({ message = "Loading..." }: { message?: string }) {
     return (
         <View style={styles.centered}>

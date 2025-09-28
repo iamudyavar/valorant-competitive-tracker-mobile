@@ -759,11 +759,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
         textAlign: 'center',
-        width: 60, // Fixed width for all columns
+        width: 60,
     },
     playerHeader: {
         textAlign: 'left',
-        width: 140, // Further reduced to decrease spacing with K/D/A columns
+        width: 140,
     },
     acsHeader: {
         width: 50,
@@ -832,14 +832,14 @@ const styles = StyleSheet.create({
     playerInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        width: 140, // Further reduced to match header and decrease spacing with K/D/A columns
+        width: 140,
     },
     playerName: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         flex: 1,
-        marginLeft: 6, // Increased slightly from 4 for better spacing
+        marginLeft: 6,
     },
     agentIcon: {
         width: 28,

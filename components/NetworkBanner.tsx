@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors } from '../theme/colors';
 import { useNetwork } from '../providers/NetworkProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
