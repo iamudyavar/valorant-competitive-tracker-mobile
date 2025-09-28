@@ -234,6 +234,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: Colors.textPrimary,
     fontSize: 16,
+    fontFamily: 'Inter_400Regular',
   },
   clearButton: {
     marginLeft: 8,
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
   clearButtonText: {
     color: Colors.textSecondary,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Inter_600SemiBold',
   },
   centered: {
     flex: 1,
@@ -256,12 +257,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: Colors.textSecondary,
-    // fontFamily: 'Inter_400Regular', // Assuming you have this font loaded
+    fontFamily: 'Inter_400Regular',
     fontSize: 16,
   },
   errorText: {
     color: Colors.textSecondary,
     fontSize: 16,
+    fontFamily: 'Inter_400Regular',
     textAlign: 'center',
   }
 });

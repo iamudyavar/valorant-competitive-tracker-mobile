@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     loadingText: {
         color: Colors.textSecondary,
         fontSize: 16,
+        fontFamily: 'Inter_400Regular',
         marginTop: 12,
         textAlign: 'center',
     },
@@ -114,13 +115,14 @@ const styles = StyleSheet.create({
     offlineTitle: {
         color: Colors.textPrimary,
         fontSize: 20,
-        fontWeight: '600',
+        fontFamily: 'Inter_600SemiBold',
         marginBottom: 8,
         textAlign: 'center',
     },
     offlineMessage: {
         color: Colors.textSecondary,
         fontSize: 16,
+        fontFamily: 'Inter_400Regular',
         textAlign: 'center',
         lineHeight: 22,
         marginBottom: 24,
@@ -132,13 +134,14 @@ const styles = StyleSheet.create({
     slowTitle: {
         color: Colors.textPrimary,
         fontSize: 20,
-        fontWeight: '600',
+        fontFamily: 'Inter_600SemiBold',
         marginBottom: 8,
         textAlign: 'center',
     },
     slowMessage: {
         color: Colors.textSecondary,
         fontSize: 16,
+        fontFamily: 'Inter_400Regular',
         textAlign: 'center',
         lineHeight: 22,
         marginBottom: 24,
@@ -150,13 +153,14 @@ const styles = StyleSheet.create({
     errorTitle: {
         color: Colors.textPrimary,
         fontSize: 20,
-        fontWeight: '600',
+        fontFamily: 'Inter_600SemiBold',
         marginBottom: 8,
         textAlign: 'center',
     },
     errorMessage: {
         color: Colors.textSecondary,
         fontSize: 16,
+        fontFamily: 'Inter_400Regular',
         textAlign: 'center',
         lineHeight: 22,
         marginBottom: 24,
@@ -168,6 +172,7 @@ const styles = StyleSheet.create({
     emptyMessage: {
         color: Colors.textSecondary,
         fontSize: 16,
+        fontFamily: 'Inter_400Regular',
         textAlign: 'center',
         lineHeight: 22,
     },
@@ -180,6 +185,6 @@ const styles = StyleSheet.create({
     retryButtonText: {
         color: Colors.background,
         fontSize: 16,
-        fontWeight: '600',
+        fontFamily: 'Inter_600SemiBold',
     },
 });

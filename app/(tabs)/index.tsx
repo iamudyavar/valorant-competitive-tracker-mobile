@@ -135,20 +135,20 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 22,
-    // fontFamily: 'Inter_700Bold', // Assuming you have this font loaded
-    fontWeight: '700',
+    fontFamily: 'Inter_700Bold',
     color: Colors.textPrimary,
     marginLeft: 16,
     marginBottom: 10,
   },
   emptyText: {
     color: Colors.textSecondary,
-    // fontFamily: 'Inter_400Regular', // Assuming you have this font loaded
+    fontFamily: 'Inter_400Regular',
     fontSize: 16,
   },
   errorText: {
     color: Colors.textSecondary,
     fontSize: 16,
+    fontFamily: 'Inter_400Regular',
     textAlign: 'center',
   }
 });
