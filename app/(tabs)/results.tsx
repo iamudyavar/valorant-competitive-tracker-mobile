@@ -152,6 +152,7 @@ export default function ResultsPage() {
           renderItem={({ item }) => <MatchCard match={item} />}
           onEndReached={hasMore ? handleLoadMore : undefined}
           onEndReachedThreshold={0.5}
+          contentInsetAdjustmentBehavior="automatic"
           ListFooterComponent={isLoading ? <ActivityIndicator style={{ margin: 20 }} color={Colors.textPrimary} /> : null}
         />
       )}

@@ -136,17 +136,7 @@ const WinConditionIcon = ({ condition }: { condition: string | null }) => {
 
 // Round timeline component
 const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
-    const [expandedRounds, setExpandedRounds] = useState<Set<number>>(new Set());
-
-    const toggleRoundExpansion = (roundNumber: number) => {
-        const newExpanded = new Set(expandedRounds);
-        if (newExpanded.has(roundNumber)) {
-            newExpanded.delete(roundNumber);
-        } else {
-            newExpanded.add(roundNumber);
-        }
-        setExpandedRounds(newExpanded);
-    };
+    const [pressedRound, setPressedRound] = useState<number | null>(null);
 
     const getTeamColor = (teamName: string | null) => {
         if (!teamName) return Colors.textMuted;
@@ -166,6 +156,15 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
             case 'time': return 'Time Expired';
             default: return 'TBD';
         }
+    };
+
+    const getScoreAtRound = (roundNumber: number) => {
+        const completedRounds = map.rounds.filter(round =>
+            round.roundNumber <= roundNumber && round.winningTeam !== null
+        );
+        const team1Wins = completedRounds.filter(round => round.winningTeam === match.team1.name).length;
+        const team2Wins = completedRounds.filter(round => round.winningTeam === match.team2.name).length;
+        return { team1Wins, team2Wins };
     };
 
     const completedRounds = map.rounds.filter(round => round.winningTeam !== null);
@@ -198,12 +197,13 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
                     map.status === 'completed' ? round.winCondition !== null : true
                 ).map((round, index) => {
                     const isCompleted = round.winningTeam !== null && round.winCondition !== null;
-                    const isExpanded = expandedRounds.has(round.roundNumber);
+                    const isPressed = pressedRound === round.roundNumber;
                     const teamColor = getTeamColor(round.winningTeam);
                     const filteredRounds = map.rounds.filter(round =>
                         map.status === 'completed' ? round.winCondition !== null : true
                     );
                     const isLastRound = index === filteredRounds.length - 1;
+                    const scoreAtRound = getScoreAtRound(round.roundNumber);
 
                     return (
                         <View key={round.roundNumber} style={styles.roundContainer}>
@@ -214,7 +214,8 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
                                     !isCompleted && styles.pendingRound,
                                     { borderColor: isCompleted ? teamColor : Colors.divider }
                                 ]}
-                                onPress={() => toggleRoundExpansion(round.roundNumber)}
+                                onPressIn={() => setPressedRound(round.roundNumber)}
+                                onPressOut={() => setPressedRound(null)}
                             >
                                 <Text style={[
                                     styles.roundNumber,
@@ -237,13 +238,13 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 )}
                             </Pressable>
 
-                            {/* Expanded round details */}
-                            {isExpanded && isCompleted && (
-                                <View style={styles.expandedDetails}>
-                                    <Text style={styles.expandedTeamName}>
-                                        {round.winningTeam}
+                            {/* Press and hold popup */}
+                            {isPressed && isCompleted && (
+                                <View style={styles.roundPopup}>
+                                    <Text style={styles.popupScore}>
+                                        {scoreAtRound.team1Wins} - {scoreAtRound.team2Wins}
                                     </Text>
-                                    <Text style={styles.expandedWinCondition}>
+                                    <Text style={styles.popupWinCondition}>
                                         {getWinConditionText(round.winCondition)}
                                     </Text>
                                 </View>
@@ -899,6 +900,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.surface,
         marginBottom: 8,
         paddingVertical: 16,
+        overflow: 'visible',
     },
     timelineHeader: {
         flexDirection: 'row',
@@ -923,6 +925,7 @@ const styles = StyleSheet.create({
     },
     timelineScrollView: {
         paddingHorizontal: 16, // Match timelineHeader padding
+        overflow: 'visible',
     },
     timelineContent: {
         paddingRight: 0, // Remove extra padding that might cause dead space
@@ -930,6 +933,7 @@ const styles = StyleSheet.create({
     roundContainer: {
         alignItems: 'center',
         marginRight: 8,
+        position: 'relative',
     },
     roundItem: {
         width: 60,
@@ -971,21 +975,33 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_400Regular',
         fontSize: 10,
     },
-    expandedDetails: {
+    roundPopup: {
+        position: 'absolute',
+        bottom: 70, // Position above the round bubble
+        left: -10, // Center the popup above the round bubble
+        right: -10,
         backgroundColor: Colors.surfaceSecondary,
         padding: 8,
         borderRadius: 8,
-        marginTop: 4,
-        minWidth: 80,
         alignItems: 'center',
+        minWidth: 80,
+        zIndex: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
-    expandedTeamName: {
+    popupScore: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
-        fontSize: 12,
+        fontSize: 14,
         marginBottom: 2,
     },
-    expandedWinCondition: {
+    popupWinCondition: {
         color: Colors.textSecondary,
         fontFamily: 'Inter_400Regular',
         fontSize: 10,
