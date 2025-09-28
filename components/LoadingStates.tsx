@@ -43,10 +43,11 @@ export function OfflineState({ onRetry }: { onRetry?: () => void }) {
 export function SlowConnectionState() {
     return (
         <View style={styles.centered}>
+            <ActivityIndicator size="large" color={Colors.textPrimary} />
             <Text style={styles.slowIcon}>🐌</Text>
             <Text style={styles.slowTitle}>Slow Connection</Text>
             <Text style={styles.slowMessage}>
-                Your connection seems slow. This might take a moment...
+                This might take a moment...
             </Text>
         </View>
     );

@@ -128,7 +128,7 @@ export default function ResultsPage() {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by team name, event, or series..."
+          placeholder="Search..."
           placeholderTextColor={Colors.textSecondary}
           value={searchInput}
           onChangeText={handleSearchInput}

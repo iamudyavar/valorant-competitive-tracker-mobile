@@ -25,7 +25,7 @@ export function NetworkBanner() {
     };
 
     return (
-        <View style={[styles.banner, { backgroundColor: bannerContent.backgroundColor, bottom: insets.bottom + 50 }]}>
+        <View style={[styles.banner, { backgroundColor: bannerContent.backgroundColor, bottom: insets.bottom + 60 }]}>
             <View style={styles.bannerContent}>
                 <View style={styles.bannerLeft}>
                     <Text style={styles.bannerIcon}>{bannerContent.icon}</Text>
@@ -47,10 +47,11 @@ const styles = StyleSheet.create({
     banner: {
         position: 'absolute',
         bottom: 0,
-        left: 0,
-        right: 0,
+        left: 16,
+        right: 16,
         zIndex: 1000,
         elevation: 1000,
+        borderRadius: 12,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
