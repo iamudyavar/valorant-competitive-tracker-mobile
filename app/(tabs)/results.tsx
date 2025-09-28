@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePaginatedQuery, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
+import { LoadingSpinner, OfflineState, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
+import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
 
 type MatchCard = {
@@ -33,10 +35,13 @@ type MatchCard = {
 };
 
 export default function ResultsPage() {
+  const { isConnected, isInternetReachable } = useNetwork();
   const [searchTerm, setSearchTerm] = useState('');
   const [displayedResults, setDisplayedResults] = useState<MatchCard[]>([]);
   const [allSearchResults, setAllSearchResults] = useState<MatchCard[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isSlowConnection, setIsSlowConnection] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const itemsPerPage = 15;
 
   // Regular paginated query for when not searching
@@ -107,16 +112,64 @@ export default function ResultsPage() {
     setSearchTerm('');
   };
 
+  // Detect slow connections
+  useEffect(() => {
+    if (regularStatus === 'LoadingFirstPage' && !searchTerm.trim() && isConnected && isInternetReachable) {
+      const timer = setTimeout(() => {
+        setIsSlowConnection(true);
+      }, 3000); // Consider slow after 3 seconds
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsSlowConnection(false);
+    }
+  }, [regularStatus, searchTerm, isConnected, isInternetReachable]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+    setIsSlowConnection(false);
+  };
+
   const isLoading = searchTerm.trim() ? false : regularIsLoading;
   const hasMore = searchTerm.trim()
     ? (currentPage + 1) * itemsPerPage < allSearchResults.length
     : regularStatus === 'CanLoadMore';
 
-  if (regularStatus === 'LoadingFirstPage' && !searchTerm.trim()) {
+  // Handle different states
+  const isOffline = !isConnected || isInternetReachable === false;
+  const hasError = false; // Convex doesn't have an 'Error' status, it returns null on error
+
+  if (isOffline) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.textPrimary} />
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <OfflineState onRetry={handleRetry} />
+      </SafeAreaView>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>Failed to load matches. Please try again.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (regularStatus === 'LoadingFirstPage' && !searchTerm.trim()) {
+    if (isSlowConnection) {
+      return (
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <SlowConnectionState onRetry={handleRetry} />
+        </SafeAreaView>
+      );
+    }
+
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <LoadingSpinner message="Loading completed matches..." />
+      </SafeAreaView>
     );
   }
 
@@ -140,11 +193,10 @@ export default function ResultsPage() {
       </View>
 
       {displayedResults.length === 0 ? (
-        <View style={styles.centered}>
-          <Text style={styles.emptyText}>
-            {searchTerm.trim() ? 'No matches found for your search.' : 'No completed matches found.'}
-          </Text>
-        </View>
+        <EmptyState
+          message={searchTerm.trim() ? 'No matches found for your search.' : 'No completed matches found.'}
+          icon={searchTerm.trim() ? '🔍' : '🏆'}
+        />
       ) : (
         <FlatList
           data={displayedResults}
@@ -206,6 +258,11 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     // fontFamily: 'Inter_400Regular', // Assuming you have this font loaded
     fontSize: 16,
+  },
+  errorText: {
+    color: Colors.textSecondary,
+    fontSize: 16,
+    textAlign: 'center',
   }
 });
 

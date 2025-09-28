@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { ConvexClientProvider } from '../providers/ConvexClientProvider';
+import { NetworkProvider } from '../providers/NetworkProvider';
 import { Colors } from '../theme/colors';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator, View, StatusBar } from 'react-native';
@@ -23,26 +24,28 @@ export default function RootLayout() {
 
     return (
         <View style={{ flex: 1, backgroundColor: Colors.background }}>
-            <ConvexClientProvider>
-                <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
-                <Stack screenOptions={{
-                    headerStyle: {
-                        backgroundColor: Colors.surface,
-                    },
-                    headerTintColor: '#fff',
-                    headerTitleStyle: {
-                        fontFamily: 'Inter_600SemiBold',
-                    },
-                    contentStyle: {
-                        backgroundColor: Colors.background
-                    },
-                    gestureEnabled: true,
-                    gestureDirection: 'horizontal',
-                }}>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="match/[vlrId]" options={{ title: 'Match Details', headerBackTitle: 'Back' }} />
-                </Stack>
-            </ConvexClientProvider>
+            <NetworkProvider>
+                <ConvexClientProvider>
+                    <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
+                    <Stack screenOptions={{
+                        headerStyle: {
+                            backgroundColor: Colors.surface,
+                        },
+                        headerTintColor: '#fff',
+                        headerTitleStyle: {
+                            fontFamily: 'Inter_600SemiBold',
+                        },
+                        contentStyle: {
+                            backgroundColor: Colors.background
+                        },
+                        gestureEnabled: true,
+                        gestureDirection: 'horizontal',
+                    }}>
+                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        <Stack.Screen name="match/[vlrId]" options={{ title: 'Match Details', headerBackTitle: 'Back' }} />
+                    </Stack>
+                </ConvexClientProvider>
+            </NetworkProvider>
         </View>
     );
 }

@@ -1,9 +1,12 @@
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
+import { LoadingSpinner, OfflineState, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
+import { useNetwork } from '../../providers/NetworkProvider';
+import { useState, useEffect } from 'react';
 
 const Section = ({ title, data }: { title: string, data: any[] | undefined }) => {
   if (!data || data.length === 0) {
@@ -22,21 +25,72 @@ const Section = ({ title, data }: { title: string, data: any[] | undefined }) =>
 
 
 export default function HomePage() {
+  const { isConnected, isInternetReachable } = useNetwork();
+  const [isSlowConnection, setIsSlowConnection] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
   const matchesData = useQuery(api.matches.getHomePageMatches, {
     upcomingLimit: 10,
   });
 
+  // Detect slow connections
+  useEffect(() => {
+    if (matchesData === undefined && isConnected && isInternetReachable) {
+      const timer = setTimeout(() => {
+        setIsSlowConnection(true);
+      }, 3000); // Consider slow after 3 seconds
 
-  if (matchesData === undefined) {
+      return () => clearTimeout(timer);
+    } else {
+      setIsSlowConnection(false);
+    }
+  }, [matchesData, isConnected, isInternetReachable]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+    setIsSlowConnection(false);
+  };
+
+  // Handle different states
+  const isOffline = !isConnected || isInternetReachable === false;
+  const isLoading = matchesData === undefined && !isOffline;
+  const hasError = matchesData === null;
+
+  if (isOffline) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.textPrimary} />
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <OfflineState onRetry={handleRetry} />
+      </SafeAreaView>
     );
   }
 
-  const { live, upcoming } = matchesData;
+  if (hasError) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>Failed to load matches. Please try again.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
+  if (isLoading) {
+    if (isSlowConnection) {
+      return (
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <SlowConnectionState onRetry={handleRetry} />
+        </SafeAreaView>
+      );
+    }
+
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <LoadingSpinner message="Loading matches..." />
+      </SafeAreaView>
+    );
+  }
+
+  const { live, upcoming } = matchesData || { live: [], upcoming: [] };
   const isEmpty = live.length === 0 && upcoming.length === 0;
 
   return (
@@ -46,9 +100,10 @@ export default function HomePage() {
         contentInsetAdjustmentBehavior="automatic"
       >
         {isEmpty ? (
-          <View style={styles.centered}>
-            <Text style={styles.emptyText}>No live or upcoming matches.</Text>
-          </View>
+          <EmptyState
+            message="No live or upcoming matches at the moment."
+            icon="🏆"
+          />
         ) : (
           <>
             <Section title="Live" data={live} />
@@ -90,5 +145,10 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     // fontFamily: 'Inter_400Regular', // Assuming you have this font loaded
     fontSize: 16,
+  },
+  errorText: {
+    color: Colors.textSecondary,
+    fontSize: 16,
+    textAlign: 'center',
   }
 });

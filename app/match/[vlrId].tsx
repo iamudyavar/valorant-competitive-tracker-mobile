@@ -4,6 +4,8 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { useState, useEffect, useRef } from 'react';
 import { Colors } from '../../theme/colors';
+import { LoadingSpinner, OfflineState, SlowConnectionState, ErrorState } from '../../components/LoadingStates';
+import { useNetwork } from '../../providers/NetworkProvider';
 
 // Type definitions based on the Convex schema
 interface PlayerStats {
@@ -425,10 +427,32 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
 export default function MatchDetailPage() {
     const { vlrId } = useLocalSearchParams();
+    const { isConnected, isInternetReachable } = useNetwork();
+    const [isSlowConnection, setIsSlowConnection] = useState(false);
+    const [retryCount, setRetryCount] = useState(0);
+
     const match = useQuery(api.matches.getMatchById, { vlrId: vlrId as string }) as MatchData | null | undefined;
 
     const [selectedMapIndex, setSelectedMapIndex] = useState(0);
     const hasAutoSelectedLiveMap = useRef(false);
+
+    // Detect slow connections
+    useEffect(() => {
+        if (match === undefined && isConnected && isInternetReachable) {
+            const timer = setTimeout(() => {
+                setIsSlowConnection(true);
+            }, 3000); // Consider slow after 3 seconds
+
+            return () => clearTimeout(timer);
+        } else {
+            setIsSlowConnection(false);
+        }
+    }, [match, isConnected, isInternetReachable]);
+
+    const handleRetry = () => {
+        setRetryCount(prev => prev + 1);
+        setIsSlowConnection(false);
+    };
 
     // Auto-jump to the live map when the match is live
     useEffect(() => {
@@ -446,21 +470,29 @@ export default function MatchDetailPage() {
         hasAutoSelectedLiveMap.current = true;
     }, [match?.status, match?.maps]);
 
-    if (!match) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#ffffff" />
-            </View>
-        );
+    // Handle different states
+    const isOffline = !isConnected || isInternetReachable === false;
+    const isLoading = match === undefined && !isOffline;
+    const hasError = match === null;
+
+    if (isOffline) {
+        return <OfflineState onRetry={handleRetry} />;
     }
 
-    if (match === null) {
-        return (
-            <View style={styles.centered}>
-                <Text style={styles.errorText}>Match not found.</Text>
-            </View>
-        );
+    if (hasError) {
+        return <ErrorState message="Match not found." onRetry={handleRetry} />;
     }
+
+    if (isLoading) {
+        if (isSlowConnection) {
+            return <SlowConnectionState onRetry={handleRetry} />;
+        }
+
+        return <LoadingSpinner message="Loading match details..." />;
+    }
+
+    // At this point, match is guaranteed to be defined
+    if (!match) return null;
 
     // Choose which maps to display
     // - Live match: show live/completed and upcoming maps (but not unplayed)
