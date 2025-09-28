@@ -268,8 +268,8 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
 };
 
 
-// Player stats row component
-const PlayerStatsRow = ({ player, mapStatus }: { player: PlayerStats; mapStatus: string }) => {
+// New component for just the player stats data
+const PlayerStatsData = ({ player, mapStatus }: { player: PlayerStats; mapStatus: string }) => {
     const plusMinus = player.stats.kills - player.stats.deaths;
 
     const getPlusMinusColor = (value: number) => {
@@ -279,13 +279,7 @@ const PlayerStatsRow = ({ player, mapStatus }: { player: PlayerStats; mapStatus:
     };
 
     return (
-        <View style={styles.playerRow}>
-            <View style={styles.playerInfo}>
-                {player.agent.iconUrl && (
-                    <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
-                )}
-                <Text style={styles.playerName}>{player.playerName}</Text>
-            </View>
+        <>
             <Text style={styles.killsText}>{player.stats.kills}</Text>
             <Text style={styles.deathsText}>{player.stats.deaths}</Text>
             <Text style={styles.assistsText}>{player.stats.assists}</Text>
@@ -297,9 +291,12 @@ const PlayerStatsRow = ({ player, mapStatus }: { player: PlayerStats; mapStatus:
             <Text style={styles.hsText}>{player.stats.headshotPercent}%</Text>
             <Text style={styles.fkText}>{player.stats.firstKills}</Text>
             <Text style={styles.fdText}>{player.stats.firstDeaths}</Text>
-        </View>
+        </>
     );
 };
+
+
+// Player stats row component - REMOVED, will be replaced by the new structure in MapStats
 
 // Map stats component
 const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
@@ -352,11 +349,11 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
             {/* If the map is upcoming, show a notice instead of stats */}
             {map.status === 'upcoming' ? (
-                <View style={styles.statsTable}>
+                <View style={styles.statsTableWrapper}>
                     <Text style={styles.noDataText}>This map hasn't started yet.</Text>
                 </View>
             ) : (
-                <View style={styles.statsTable}>
+                <View style={styles.statsTableWrapper}>
                     {/* Scroll Indicators Above Header */}
                     <View style={styles.scrollIndicatorsContainer}>
                         {showLeftArrow && (
@@ -371,42 +368,25 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                         )}
                     </View>
 
-                    <ScrollView
-                        ref={scrollViewRef}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.tableScrollContainer}
-                        contentContainerStyle={styles.tableScrollContent}
-                        onScroll={(event) => {
-                            setScrollX(event.nativeEvent.contentOffset.x);
-                        }}
-                        onContentSizeChange={(contentWidth) => {
-                            setContentWidth(contentWidth);
-                        }}
-                        onLayout={(event) => {
-                            setContainerWidth(event.nativeEvent.layout.width);
-                        }}
-                        scrollEventThrottle={16}
-                    >
-                        <View style={styles.tableContainer}>
+                    <View style={styles.statsTable}>
+                        {/* Sticky Player Column */}
+                        <View style={styles.stickyColumn}>
                             <View style={styles.tableHeader}>
                                 <Text style={[styles.headerCell, styles.playerHeader]}>Player</Text>
-                                <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
-                                <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
-                                <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
-                                <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
-                                <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
-                                <Text style={[styles.headerCell, styles.adrHeader]}>ADR</Text>
-                                <Text style={[styles.headerCell, styles.hsHeader]}>HS%</Text>
-                                <Text style={[styles.headerCell, styles.fkHeader]}>FK</Text>
-                                <Text style={[styles.headerCell, styles.fdHeader]}>FD</Text>
                             </View>
 
                             {/* Team 1 Players */}
                             <View style={styles.teamSection}>
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
                                 {team1Players.map((player, index) => (
-                                    <PlayerStatsRow key={index} player={player} mapStatus={map.status} />
+                                    <View key={index} style={styles.playerRow}>
+                                        <View style={styles.playerInfo}>
+                                            {player.agent.iconUrl && (
+                                                <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                            )}
+                                            <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                        </View>
+                                    </View>
                                 ))}
                             </View>
 
@@ -414,11 +394,74 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                             <View style={styles.teamSection}>
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
                                 {team2Players.map((player, index) => (
-                                    <PlayerStatsRow key={index} player={player} mapStatus={map.status} />
+                                    <View key={index} style={styles.playerRow}>
+                                        <View style={styles.playerInfo}>
+                                            {player.agent.iconUrl && (
+                                                <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                            )}
+                                            <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                        </View>
+                                    </View>
                                 ))}
                             </View>
                         </View>
-                    </ScrollView>
+
+                        {/* Scrollable Stats Area */}
+                        <ScrollView
+                            ref={scrollViewRef}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.tableScrollContainer}
+                            contentContainerStyle={styles.tableScrollContent}
+                            onScroll={(event) => {
+                                setScrollX(event.nativeEvent.contentOffset.x);
+                            }}
+                            onContentSizeChange={(contentWidth) => {
+                                setContentWidth(contentWidth);
+                            }}
+                            onLayout={(event) => {
+                                setContainerWidth(event.nativeEvent.layout.width);
+                            }}
+                            scrollEventThrottle={16}
+                            bounces={false}
+                        >
+                            <View style={styles.scrollableTable}>
+                                <View style={styles.tableHeader}>
+                                    <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
+                                    <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
+                                    <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
+                                    <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
+                                    <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
+                                    <Text style={[styles.headerCell, styles.adrHeader]}>ADR</Text>
+                                    <Text style={[styles.headerCell, styles.hsHeader]}>HS%</Text>
+                                    <Text style={[styles.headerCell, styles.fkHeader]}>FK</Text>
+                                    <Text style={[styles.headerCell, styles.fdHeader]}>FD</Text>
+                                </View>
+
+                                {/* Team 1 Players */}
+                                <View style={styles.teamSection}>
+                                    {/* Invisible label for spacing */}
+                                    <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
+                                    {team1Players.map((player, index) => (
+                                        <View key={index} style={styles.playerRow}>
+                                            <PlayerStatsData player={player} mapStatus={map.status} />
+                                        </View>
+                                    ))}
+                                </View>
+
+                                {/* Team 2 Players */}
+                                <View style={styles.teamSection}>
+                                    {/* Invisible label for spacing */}
+                                    <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
+                                    {team2Players.map((player, index) => (
+                                        <View key={index} style={styles.playerRow}>
+                                            <PlayerStatsData player={player} mapStatus={map.status} />
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </View>
                 </View>
             )}
         </View>
@@ -734,15 +777,25 @@ const styles = StyleSheet.create({
     },
 
     // Stats Table Styles
-    statsTable: {
+    statsTableWrapper: {
         padding: 16,
+    },
+    statsTable: {
+        flexDirection: 'row',
+    },
+    stickyColumn: {
+        width: 140, // Should match playerHeader width
+        backgroundColor: Colors.surface, // Ensure it has a background
+        zIndex: 1,
+    },
+    scrollableTable: {
+        minWidth: 400, // Sum of all stat column widths
     },
     tableScrollContainer: {
         flex: 1,
     },
     tableScrollContent: {
-        flexGrow: 1,
-        paddingRight: 0, // Remove any extra padding that might cause dead space
+        // flexGrow: 1, // This was causing the dead space
     },
     tableContainer: {
         minWidth: 500, // Exact width needed for all columns (140+40+40+40+50+50+50+50+40+40)
@@ -825,7 +878,7 @@ const styles = StyleSheet.create({
     playerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 10,
+        height: 48, // Use fixed height for alignment
         borderBottomWidth: 1,
         borderBottomColor: Colors.dividerSecondary,
     },
@@ -1052,7 +1105,7 @@ const styles = StyleSheet.create({
     },
     scrollIndicatorLeft: {
         position: 'absolute',
-        left: 0,
+        left: 140, // Align with the start of the scrollable area
         top: 0,
         bottom: 0,
         width: 24,
