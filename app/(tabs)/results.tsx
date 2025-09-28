@@ -4,9 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePaginatedQuery, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
-import { LoadingSpinner, OfflineState, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
+import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 type MatchCard = {
   vlrId: string;
@@ -36,85 +36,44 @@ type MatchCard = {
 
 export default function ResultsPage() {
   const { isConnected, isInternetReachable } = useNetwork();
+  const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [displayedResults, setDisplayedResults] = useState<MatchCard[]>([]);
-  const [allSearchResults, setAllSearchResults] = useState<MatchCard[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
   const [isSlowConnection, setIsSlowConnection] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const itemsPerPage = 15;
 
-  // Regular paginated query for when not searching
   const {
-    results: regularResults,
-    status: regularStatus,
-    loadMore: regularLoadMore,
-    isLoading: regularIsLoading,
+    results: displayedResults,
+    status,
+    loadMore,
+    isLoading: queryIsLoading,
   } = usePaginatedQuery(
-    api.matches.getCompletedMatches,
-    {},
+    api.matches.searchCompletedMatchesPaginated,
+    { searchTerm: searchTerm.trim() },
     { initialNumItems: 15 }
   );
 
-  // Search query
-  const searchResults = useQuery(
-    api.matches.searchCompletedMatches,
-    searchTerm.trim() ? { searchTerm: searchTerm.trim() } : "skip"
-  );
-
-  // Handle search results
-  useEffect(() => {
-    if (searchTerm.trim()) {
-      if (searchResults) {
-        setAllSearchResults(searchResults);
-        setCurrentPage(0);
-        setDisplayedResults(searchResults.slice(0, itemsPerPage));
-      }
-    } else {
-      setAllSearchResults([]);
-      setDisplayedResults([]);
-      setCurrentPage(0);
-    }
-  }, [searchTerm, searchResults]);
-
-  // Handle regular results
-  useEffect(() => {
-    if (!searchTerm.trim() && regularResults) {
-      setDisplayedResults(regularResults);
-    }
-  }, [regularResults, searchTerm]);
-
   const handleLoadMore = () => {
-    if (searchTerm.trim()) {
-      // Handle search pagination
-      const nextPage = currentPage + 1;
-      const startIndex = nextPage * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const newResults = allSearchResults.slice(startIndex, endIndex);
-
-      if (newResults.length > 0) {
-        setDisplayedResults(prev => [...prev, ...newResults]);
-        setCurrentPage(nextPage);
-      }
-    } else {
-      // Handle regular pagination
-      if (regularStatus === 'CanLoadMore') {
-        regularLoadMore(15);
-      }
+    if (status === 'CanLoadMore') {
+      loadMore(15);
     }
   };
 
-  const handleSearch = (text: string) => {
-    setSearchTerm(text);
+  const handleSearchInput = (text: string) => {
+    setSearchInput(text);
+  };
+
+  const handleSearch = () => {
+    setSearchTerm(searchInput);
   };
 
   const clearSearch = () => {
+    setSearchInput('');
     setSearchTerm('');
   };
 
   // Detect slow connections
   useEffect(() => {
-    if (regularStatus === 'LoadingFirstPage' && !searchTerm.trim() && isConnected && isInternetReachable) {
+    if (status === 'LoadingFirstPage' && isConnected && isInternetReachable) {
       const timer = setTimeout(() => {
         setIsSlowConnection(true);
       }, 3000); // Consider slow after 3 seconds
@@ -123,29 +82,19 @@ export default function ResultsPage() {
     } else {
       setIsSlowConnection(false);
     }
-  }, [regularStatus, searchTerm, isConnected, isInternetReachable]);
+  }, [status, isConnected, isInternetReachable]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
     setIsSlowConnection(false);
   };
 
-  const isLoading = searchTerm.trim() ? false : regularIsLoading;
-  const hasMore = searchTerm.trim()
-    ? (currentPage + 1) * itemsPerPage < allSearchResults.length
-    : regularStatus === 'CanLoadMore';
+  const isLoading = queryIsLoading;
+  const hasMore = status === 'CanLoadMore';
 
   // Handle different states
   const isOffline = !isConnected || isInternetReachable === false;
   const hasError = false; // Convex doesn't have an 'Error' status, it returns null on error
-
-  if (isOffline) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <OfflineState onRetry={handleRetry} />
-      </SafeAreaView>
-    );
-  }
 
   if (hasError) {
     return (
@@ -157,11 +106,11 @@ export default function ResultsPage() {
     );
   }
 
-  if (regularStatus === 'LoadingFirstPage' && !searchTerm.trim()) {
+  if (status === 'LoadingFirstPage') {
     if (isSlowConnection) {
       return (
         <SafeAreaView style={styles.container} edges={['top']}>
-          <SlowConnectionState onRetry={handleRetry} />
+          <SlowConnectionState />
         </SafeAreaView>
       );
     }
@@ -180,12 +129,14 @@ export default function ResultsPage() {
           style={styles.searchInput}
           placeholder="Search by team name, event, or series..."
           placeholderTextColor={Colors.textSecondary}
-          value={searchTerm}
-          onChangeText={handleSearch}
+          value={searchInput}
+          onChangeText={handleSearchInput}
+          onSubmitEditing={handleSearch}
+          returnKeyType="search"
           autoCapitalize="none"
           autoCorrect={false}
         />
-        {searchTerm.length > 0 && (
+        {searchInput.length > 0 && (
           <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
             <Text style={styles.clearButtonText}>✕</Text>
           </TouchableOpacity>

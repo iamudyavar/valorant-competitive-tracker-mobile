@@ -4,7 +4,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { useState, useEffect, useRef } from 'react';
 import { Colors } from '../../theme/colors';
-import { LoadingSpinner, OfflineState, SlowConnectionState, ErrorState } from '../../components/LoadingStates';
+import { LoadingSpinner, SlowConnectionState, ErrorState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 
 // Type definitions based on the Convex schema
@@ -475,17 +475,13 @@ export default function MatchDetailPage() {
     const isLoading = match === undefined && !isOffline;
     const hasError = match === null;
 
-    if (isOffline) {
-        return <OfflineState onRetry={handleRetry} />;
-    }
-
     if (hasError) {
         return <ErrorState message="Match not found." onRetry={handleRetry} />;
     }
 
     if (isLoading) {
         if (isSlowConnection) {
-            return <SlowConnectionState onRetry={handleRetry} />;
+            return <SlowConnectionState />;
         }
 
         return <LoadingSpinner message="Loading match details..." />;

@@ -40,7 +40,7 @@ export function OfflineState({ onRetry }: { onRetry?: () => void }) {
     );
 }
 
-export function SlowConnectionState({ onRetry }: { onRetry?: () => void }) {
+export function SlowConnectionState() {
     return (
         <View style={styles.centered}>
             <Text style={styles.slowIcon}>🐌</Text>
@@ -48,11 +48,6 @@ export function SlowConnectionState({ onRetry }: { onRetry?: () => void }) {
             <Text style={styles.slowMessage}>
                 Your connection seems slow. This might take a moment...
             </Text>
-            {onRetry && (
-                <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
-                    <Text style={styles.retryButtonText}>Try Again</Text>
-                </TouchableOpacity>
-            )}
         </View>
     );
 }

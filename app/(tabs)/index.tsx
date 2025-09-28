@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
-import { LoadingSpinner, OfflineState, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
+import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
 
@@ -56,14 +56,6 @@ export default function HomePage() {
   const isLoading = matchesData === undefined && !isOffline;
   const hasError = matchesData === null;
 
-  if (isOffline) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <OfflineState onRetry={handleRetry} />
-      </SafeAreaView>
-    );
-  }
-
   if (hasError) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -78,7 +70,7 @@ export default function HomePage() {
     if (isSlowConnection) {
       return (
         <SafeAreaView style={styles.container} edges={['top']}>
-          <SlowConnectionState onRetry={handleRetry} />
+          <SlowConnectionState />
         </SafeAreaView>
       );
     }

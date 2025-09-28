@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { ConvexClientProvider } from '../providers/ConvexClientProvider';
 import { NetworkProvider } from '../providers/NetworkProvider';
+import { NetworkBanner } from '../components/NetworkBanner';
 import { Colors } from '../theme/colors';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator, View, StatusBar } from 'react-native';
@@ -44,6 +45,7 @@ export default function RootLayout() {
                         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                         <Stack.Screen name="match/[vlrId]" options={{ title: 'Match Details', headerBackTitle: 'Back' }} />
                     </Stack>
+                    <NetworkBanner />
                 </ConvexClientProvider>
             </NetworkProvider>
         </View>
