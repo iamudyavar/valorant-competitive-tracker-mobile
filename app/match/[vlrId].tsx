@@ -1283,7 +1283,7 @@ const styles = StyleSheet.create({
     wideScreenHeaderCell: {
         color: Colors.textSecondary,
         fontFamily: 'Inter_600SemiBold',
-        fontSize: 14,
+        fontSize: 16,
         textAlign: 'center',
     },
     wideScreenPlayerHeader: {
@@ -1323,7 +1323,7 @@ const styles = StyleSheet.create({
     wideScreenTeamLabel: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
-        fontSize: 16,
+        fontSize: 18,
         marginBottom: 8,
         paddingHorizontal: 16,
         paddingTop: 12,
@@ -1344,14 +1344,14 @@ const styles = StyleSheet.create({
     wideScreenPlayerName: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
-        fontSize: 14,
+        fontSize: 16,
         flex: 1,
         marginLeft: 8,
     },
     wideScreenDataCell: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_500Medium',
-        fontSize: 14,
+        fontSize: 16,
         textAlign: 'center',
     },
     wideScreenKillsCell: {

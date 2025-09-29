@@ -3,13 +3,14 @@ import { ConvexClientProvider } from '../providers/ConvexClientProvider';
 import { NetworkProvider } from '../providers/NetworkProvider';
 import { NetworkBanner } from '../components/NetworkBanner';
 import { Colors } from '../theme/colors';
-import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
+import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator, View, StatusBar } from 'react-native';
 
 export default function RootLayout() {
     // Load fonts for the application
     let [fontsLoaded] = useFonts({
         Inter_400Regular,
+        Inter_500Medium,
         Inter_600SemiBold,
         Inter_700Bold,
     });
