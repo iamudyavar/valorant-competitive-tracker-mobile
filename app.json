@@ -3,7 +3,7 @@
     "name": "vlr-clone",
     "slug": "vlr-clone",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "vlrclone",
     "userInterfaceStyle": "automatic",

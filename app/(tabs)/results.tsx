@@ -156,7 +156,7 @@ export default function ResultsPage() {
         <FlatList
           data={displayedResults}
           keyExtractor={(item) => item.vlrId}
-          renderItem={({ item }) => <MatchCard match={item} />}
+          renderItem={({ item }) => <MatchCard match={item} showYear />}
           onEndReached={hasMore ? handleLoadMore : undefined}
           onEndReachedThreshold={0.5}
           contentInsetAdjustmentBehavior="automatic"

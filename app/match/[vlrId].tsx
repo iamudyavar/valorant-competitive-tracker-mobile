@@ -1,5 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Pressable, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Pressable, Dimensions, Linking } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { useState, useEffect, useRef } from 'react';
@@ -90,14 +92,36 @@ const useDimensions = () => {
 const MatchHeader = ({ match }: { match: MatchData }) => (
     <View style={styles.matchHeader}>
         <View style={styles.eventInfo}>
-            <Text style={styles.eventName}>{match.event.name}</Text>
+            <Text
+                style={styles.eventName}
+                accessibilityRole="link"
+                accessibilityHint="Opens event page in in-app browser"
+                onPress={() => {
+                    if (match.event.eventId) {
+                        WebBrowser.openBrowserAsync(`https://www.vlr.gg/event/${match.event.eventId}/`);
+                    }
+                }}
+            >
+                {match.event.name}
+            </Text>
             <Text style={styles.eventSeries}>{match.event.series}</Text>
         </View>
 
         <View style={styles.teamsContainer}>
             <View style={styles.teamHeaderSection}>
-                <Image source={{ uri: match.team1.logoUrl }} style={styles.teamLogo} />
-                <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team1.name}</Text>
+                <Pressable
+                    accessibilityRole="link"
+                    accessibilityHint="Opens team page in in-app browser"
+                    onPress={() => {
+                        if (match.team1.teamId) {
+                            WebBrowser.openBrowserAsync(`https://www.vlr.gg/team/${match.team1.teamId}/`);
+                        }
+                    }}
+                    style={{ alignItems: 'center' }}
+                >
+                    <Image source={{ uri: match.team1.logoUrl }} style={styles.teamLogo} />
+                    <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team1.name}</Text>
+                </Pressable>
             </View>
 
             <View style={styles.scoreSection}>
@@ -110,8 +134,19 @@ const MatchHeader = ({ match }: { match: MatchData }) => (
             </View>
 
             <View style={styles.teamHeaderSection}>
-                <Image source={{ uri: match.team2.logoUrl }} style={styles.teamLogo} />
-                <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team2.name}</Text>
+                <Pressable
+                    accessibilityRole="link"
+                    accessibilityHint="Opens team page in in-app browser"
+                    onPress={() => {
+                        if (match.team2.teamId) {
+                            WebBrowser.openBrowserAsync(`https://www.vlr.gg/team/${match.team2.teamId}/`);
+                        }
+                    }}
+                    style={{ alignItems: 'center' }}
+                >
+                    <Image source={{ uri: match.team2.logoUrl }} style={styles.teamLogo} />
+                    <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team2.name}</Text>
+                </Pressable>
             </View>
         </View>
     </View>
@@ -343,14 +378,23 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
 
                         return (
                             <View key={index} style={styles.wideScreenPlayerRow}>
-                                <View style={styles.wideScreenPlayerInfo}>
+                                <Pressable
+                                    accessibilityRole="link"
+                                    accessibilityHint="Opens player page in in-app browser"
+                                    onPress={() => {
+                                        if (player.playerId) {
+                                            WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
+                                        }
+                                    }}
+                                    style={styles.wideScreenPlayerInfo}
+                                >
                                     {player.agent.iconUrl && (
                                         <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                     )}
                                     <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
                                         {player.playerName}
                                     </Text>
-                                </View>
+                                </Pressable>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]}>{player.stats.assists}</Text>
@@ -384,14 +428,23 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
 
                         return (
                             <View key={index} style={styles.wideScreenPlayerRow}>
-                                <View style={styles.wideScreenPlayerInfo}>
+                                <Pressable
+                                    accessibilityRole="link"
+                                    accessibilityHint="Opens player page in in-app browser"
+                                    onPress={() => {
+                                        if (player.playerId) {
+                                            WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
+                                        }
+                                    }}
+                                    style={styles.wideScreenPlayerInfo}
+                                >
                                     {player.agent.iconUrl && (
                                         <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                     )}
                                     <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
                                         {player.playerName}
                                     </Text>
-                                </View>
+                                </Pressable>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]}>{player.stats.assists}</Text>
@@ -507,12 +560,21 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
                                 {team1Players.map((player, index) => (
                                     <View key={index} style={styles.playerRow}>
-                                        <View style={styles.playerInfo}>
+                                        <Pressable
+                                            accessibilityRole="link"
+                                            accessibilityHint="Opens player page in in-app browser"
+                                            onPress={() => {
+                                                if (player.playerId) {
+                                                    WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
+                                                }
+                                            }}
+                                            style={styles.playerInfo}
+                                        >
                                             {player.agent.iconUrl && (
                                                 <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                             )}
                                             <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
-                                        </View>
+                                        </Pressable>
                                     </View>
                                 ))}
                             </View>
@@ -522,12 +584,21 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
                                 {team2Players.map((player, index) => (
                                     <View key={index} style={styles.playerRow}>
-                                        <View style={styles.playerInfo}>
+                                        <Pressable
+                                            accessibilityRole="link"
+                                            accessibilityHint="Opens player page in in-app browser"
+                                            onPress={() => {
+                                                if (player.playerId) {
+                                                    WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
+                                                }
+                                            }}
+                                            style={styles.playerInfo}
+                                        >
                                             {player.agent.iconUrl && (
                                                 <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                             )}
                                             <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
-                                        </View>
+                                        </Pressable>
                                     </View>
                                 ))}
                             </View>
@@ -595,6 +666,10 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 };
 
 export default function MatchDetailPage() {
+    const insets = useSafeAreaInsets();
+    const fabBottomOffset = Math.max(16, 16 + insets.bottom);
+    const fabHeight = 48; // approximate button height
+    const contentBottomPadding = fabBottomOffset + fabHeight + 12; // ensure content clears FAB
     const { vlrId } = useLocalSearchParams();
     const { isConnected, isInternetReachable } = useNetwork();
     const [isSlowConnection, setIsSlowConnection] = useState(false);
@@ -668,7 +743,7 @@ export default function MatchDetailPage() {
 
     if (displayedMaps.length === 0) {
         return (
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: contentBottomPadding }}>
                 <MatchHeader match={match} />
                 <View style={styles.noDataContainer}>
                     <Text style={styles.noDataText}>No map data available yet</Text>
@@ -680,7 +755,7 @@ export default function MatchDetailPage() {
     const currentMap = displayedMaps[selectedMapIndex];
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: contentBottomPadding }}>
             <MatchHeader match={match} />
 
             {/* Map Tabs */}
@@ -697,6 +772,19 @@ export default function MatchDetailPage() {
 
             {/* Map Stats */}
             <MapStats map={currentMap} match={match} />
+
+            {/* Open in VLR Floating Button */}
+            <View pointerEvents="box-none" style={[styles.fabContainer, { bottom: fabBottomOffset }]}>
+                <Pressable
+                    accessibilityRole="button"
+                    accessibilityHint="Opens this match on vlr.gg in the in-app browser"
+                    style={styles.fabButton}
+                    onPress={() => WebBrowser.openBrowserAsync(`https://www.vlr.gg/${match.vlrId}/`)}
+                >
+                    <Text style={styles.fabText}>Open in VLR</Text>
+                    <Text style={styles.fabIcon}>↗</Text>
+                </Pressable>
+            </View>
         </ScrollView>
     );
 }
@@ -742,6 +830,10 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
         marginBottom: 4,
+    },
+    eventLink: {
+        color: Colors.accent,
+        textDecorationLine: 'underline',
     },
     eventSeries: {
         color: Colors.textSecondary,
@@ -803,6 +895,36 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         marginBottom: 8,
+    },
+    fabContainer: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+    },
+    fabButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: Colors.accent,
+        borderRadius: 24,
+        paddingVertical: 12,
+        paddingHorizontal: 18,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    fabText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_700Bold',
+        fontSize: 16,
+    },
+    fabIcon: {
+        color: Colors.textPrimary,
+        fontSize: 16,
+        marginLeft: 6,
     },
     mapTab: {
         backgroundColor: Colors.surfaceSecondary,

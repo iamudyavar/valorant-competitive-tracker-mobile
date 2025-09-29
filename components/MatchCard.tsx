@@ -14,7 +14,7 @@ type MatchCardProps = {
 
 // Function to format time where input string represents Eastern time (America/New_York)
 // and should be displayed in the user's local timezone.
-const formatTime = (timeString: string) => {
+const formatTime = (timeString: string, includeYear: boolean = false) => {
     try {
         const sourceTimeZone = 'America/New_York';
 
@@ -68,19 +68,38 @@ const formatTime = (timeString: string) => {
         const isToday = sameLocalDate(desiredDate, localNow);
         const isTomorrow = sameLocalDate(desiredDate, new Date(localNow.getTime() + 24 * 60 * 60 * 1000));
 
-        const timeOptions: Intl.DateTimeFormatOptions = {
+        // Build time string as e.g. "11:20am" (lowercase am/pm, no space)
+        const timeParts = new Intl.DateTimeFormat('en-US', {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true
-        };
+        }).formatToParts(desiredDate);
+        const hourStr = timeParts.find(p => p.type === 'hour')?.value ?? '';
+        const minuteStr = timeParts.find(p => p.type === 'minute')?.value ?? '';
+        const dayPeriod = (timeParts.find(p => p.type === 'dayPeriod')?.value ?? '').toLowerCase();
+        const timeStr = `${hourStr}:${minuteStr}${dayPeriod}`;
 
-        const dateOptions: Intl.DateTimeFormatOptions = {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric'
-        };
+        // Build date string without commas between parts when includeYear is true
+        // Example: "Sunday September 28 2025"
+        if (!isToday && !isTomorrow) {
+            const dateParts = new Intl.DateTimeFormat('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                ...(includeYear ? { year: 'numeric' } : {})
+            }).formatToParts(desiredDate);
 
-        const timeStr = desiredDate.toLocaleTimeString('en-US', timeOptions);
+            const weekday = dateParts.find(p => p.type === 'weekday')?.value ?? '';
+            const month = dateParts.find(p => p.type === 'month')?.value ?? '';
+            const dayStr = dateParts.find(p => p.type === 'day')?.value ?? '';
+            const yearStr = includeYear ? (dateParts.find(p => p.type === 'year')?.value ?? '') : '';
+
+            const dateText = includeYear
+                ? `${weekday}, ${month} ${dayStr} ${yearStr}`
+                : `${weekday}, ${month} ${dayStr}`;
+
+            return `${dateText}, ${timeStr}`;
+        }
 
         if (isToday) {
             return `Today, ${timeStr}`;
@@ -89,8 +108,7 @@ const formatTime = (timeString: string) => {
             return `Tomorrow, ${timeStr}`;
         }
 
-        const dateStr = desiredDate.toLocaleDateString('en-US', dateOptions);
-        return `${dateStr}, ${timeStr}`;
+        return `${desiredDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}, ${timeStr}`;
     } catch (error) {
         return timeString; // Fallback to original string if parsing fails
     }
@@ -106,7 +124,7 @@ const TeamDisplay = ({ name, score, logoUrl, isWinner, showScore }: { name: stri
     </View>
 );
 
-export default function MatchCard({ match }: { match: MatchCardProps }) {
+export default function MatchCard({ match, showYear }: { match: MatchCardProps; showYear?: boolean }) {
     const router = useRouter();
 
     const handlePress = () => {
@@ -122,7 +140,7 @@ export default function MatchCard({ match }: { match: MatchCardProps }) {
                 <View style={styles.eventInfo}>
                     <Text style={styles.eventName}>{match.event.name}</Text>
                     <Text style={styles.eventSeries}>{match.event.series}</Text>
-                    <Text style={styles.timeText}>{formatTime(match.time)}</Text>
+                    <Text style={styles.timeText}>{formatTime(match.time, !!showYear)}</Text>
                 </View>
                 {match.status === 'live' && (
                     <View style={styles.liveIndicator}>
