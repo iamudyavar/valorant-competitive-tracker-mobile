@@ -69,7 +69,20 @@ interface MatchData {
     maps: MapData[];
 }
 
-const { width } = Dimensions.get('window');
+// Custom hook for dynamic dimensions
+const useDimensions = () => {
+    const [dimensions, setDimensions] = useState(() => Dimensions.get('window'));
+
+    useEffect(() => {
+        const subscription = Dimensions.addEventListener('change', ({ window }) => {
+            setDimensions(window);
+        });
+
+        return () => subscription?.remove();
+    }, []);
+
+    return dimensions;
+};
 
 
 
@@ -295,6 +308,114 @@ const PlayerStatsData = ({ player, mapStatus }: { player: PlayerStats; mapStatus
     );
 };
 
+// Wide screen player stats component for larger screens
+const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData }) => {
+    const team1Players = map.stats.filter(p => p.teamName === match.team1.name);
+    const team2Players = map.stats.filter(p => p.teamName === match.team2.name);
+
+    return (
+        <View style={styles.wideScreenTableContainer}>
+            <View style={styles.wideScreenTable}>
+                {/* Header Row */}
+                <View style={styles.wideScreenHeaderRow}>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenPlayerHeader]}>Player</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenKillsHeader]}>K</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenDeathsHeader]}>D</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAssistsHeader]}>A</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenPlusMinusHeader]}>+/-</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAcsHeader]}>ACS</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAdrHeader]}>ADR</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenHsHeader]}>HS%</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFkHeader]}>FK</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFdHeader]}>FD</Text>
+                </View>
+
+                {/* Team 1 Players */}
+                <View style={styles.wideScreenTeamSection}>
+                    <Text style={styles.wideScreenTeamLabel}>{match.team1.shortName}</Text>
+                    {team1Players.map((player, index) => {
+                        const plusMinus = player.stats.kills - player.stats.deaths;
+                        const getPlusMinusColor = (value: number) => {
+                            if (value > 0) return '#10B981';
+                            if (value < 0) return '#EF4444';
+                            return Colors.textPrimary;
+                        };
+
+                        return (
+                            <View key={index} style={styles.wideScreenPlayerRow}>
+                                <View style={styles.wideScreenPlayerInfo}>
+                                    {player.agent.iconUrl && (
+                                        <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                    )}
+                                    <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
+                                        {player.playerName}
+                                    </Text>
+                                </View>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]}>{player.stats.assists}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenPlusMinusCell, { color: getPlusMinusColor(plusMinus) }]}>
+                                    {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAcsCell]}>
+                                    {map.status === 'live' ? '' : player.stats.acs}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAdrCell]}>
+                                    {map.status === 'live' ? '' : player.stats.adr}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]}>{player.stats.headshotPercent}%</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]}>{player.stats.firstKills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]}>{player.stats.firstDeaths}</Text>
+                            </View>
+                        );
+                    })}
+                </View>
+
+                {/* Team 2 Players */}
+                <View style={styles.wideScreenTeamSection}>
+                    <Text style={styles.wideScreenTeamLabel}>{match.team2.shortName}</Text>
+                    {team2Players.map((player, index) => {
+                        const plusMinus = player.stats.kills - player.stats.deaths;
+                        const getPlusMinusColor = (value: number) => {
+                            if (value > 0) return '#10B981';
+                            if (value < 0) return '#EF4444';
+                            return Colors.textPrimary;
+                        };
+
+                        return (
+                            <View key={index} style={styles.wideScreenPlayerRow}>
+                                <View style={styles.wideScreenPlayerInfo}>
+                                    {player.agent.iconUrl && (
+                                        <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                    )}
+                                    <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
+                                        {player.playerName}
+                                    </Text>
+                                </View>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]}>{player.stats.assists}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenPlusMinusCell, { color: getPlusMinusColor(plusMinus) }]}>
+                                    {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAcsCell]}>
+                                    {map.status === 'live' ? '' : player.stats.acs}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAdrCell]}>
+                                    {map.status === 'live' ? '' : player.stats.adr}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]}>{player.stats.headshotPercent}%</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]}>{player.stats.firstKills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]}>{player.stats.firstDeaths}</Text>
+                            </View>
+                        );
+                    })}
+                </View>
+            </View>
+        </View>
+    );
+};
+
 
 // Player stats row component - REMOVED, will be replaced by the new structure in MapStats
 
@@ -302,6 +423,7 @@ const PlayerStatsData = ({ player, mapStatus }: { player: PlayerStats; mapStatus
 const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     const team1Players = map.stats.filter(p => p.teamName === match.team1.name);
     const team2Players = map.stats.filter(p => p.teamName === match.team2.name);
+    const { width } = useDimensions(); // Use dynamic dimensions
 
     const [scrollX, setScrollX] = useState(0);
     const [contentWidth, setContentWidth] = useState(0);
@@ -319,6 +441,9 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
         const maxScrollX = contentWidth - containerWidth;
         scrollViewRef.current?.scrollTo({ x: maxScrollX, animated: true });
     };
+
+    // Determine if we should use wide screen layout (tablets and larger screens)
+    const isWideScreen = width >= 600; // 768px breakpoint for tablets
 
     return (
         <View style={styles.mapStatsContainer}>
@@ -352,7 +477,11 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                 <View style={styles.statsTableWrapper}>
                     <Text style={styles.noDataText}>This map hasn't started yet.</Text>
                 </View>
+            ) : isWideScreen ? (
+                // Wide screen layout - no scroll, uses full available space
+                <WideScreenPlayerStats map={map} match={match} />
             ) : (
+                // Mobile layout - scrollable table
                 <View style={styles.statsTableWrapper}>
                     {/* Scroll Indicators Above Header */}
                     <View style={styles.scrollIndicatorsContainer}>
@@ -1132,5 +1261,125 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         opacity: 0.8,
+    },
+
+    // Wide Screen Table Styles
+    wideScreenTableContainer: {
+        padding: 16,
+    },
+    wideScreenTable: {
+        backgroundColor: Colors.surface,
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    wideScreenHeaderRow: {
+        flexDirection: 'row',
+        backgroundColor: Colors.surfaceSecondary,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.divider,
+    },
+    wideScreenHeaderCell: {
+        color: Colors.textSecondary,
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    wideScreenPlayerHeader: {
+        flex: 3, // Larger flex for player column
+        textAlign: 'left',
+    },
+    wideScreenKillsHeader: {
+        flex: 1,
+    },
+    wideScreenDeathsHeader: {
+        flex: 1,
+    },
+    wideScreenAssistsHeader: {
+        flex: 1,
+    },
+    wideScreenPlusMinusHeader: {
+        flex: 1.2,
+    },
+    wideScreenAcsHeader: {
+        flex: 1.4,
+    },
+    wideScreenAdrHeader: {
+        flex: 1.4,
+    },
+    wideScreenHsHeader: {
+        flex: 1.2,
+    },
+    wideScreenFkHeader: {
+        flex: 1,
+    },
+    wideScreenFdHeader: {
+        flex: 1,
+    },
+    wideScreenTeamSection: {
+        marginBottom: 8,
+    },
+    wideScreenTeamLabel: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 16,
+        marginBottom: 8,
+        paddingHorizontal: 16,
+        paddingTop: 12,
+    },
+    wideScreenPlayerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.dividerSecondary,
+    },
+    wideScreenPlayerInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 3, // Match header flex
+    },
+    wideScreenPlayerName: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 14,
+        flex: 1,
+        marginLeft: 8,
+    },
+    wideScreenDataCell: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    wideScreenKillsCell: {
+        flex: 1, // Match header flex
+    },
+    wideScreenDeathsCell: {
+        flex: 1, // Match header flex
+    },
+    wideScreenAssistsCell: {
+        flex: 1, // Match header flex
+    },
+    wideScreenPlusMinusCell: {
+        flex: 1.2, // Match header flex
+        fontFamily: 'Inter_600SemiBold',
+    },
+    wideScreenAcsCell: {
+        flex: 1.4, // Match header flex
+    },
+    wideScreenAdrCell: {
+        flex: 1.4, // Match header flex
+    },
+    wideScreenHsCell: {
+        flex: 1.2, // Match header flex
+    },
+    wideScreenFkCell: {
+        flex: 1, // Match header flex
+    },
+    wideScreenFdCell: {
+        flex: 1, // Match header flex
     },
 });
