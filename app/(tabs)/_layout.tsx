@@ -4,14 +4,25 @@ import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 import { Colors } from '../../theme/colors';
 import HomePage from './index';
 import ResultsPage from './results';
 
 const Tab = createBottomTabNavigator();
 
-// Android Tab Bar
-function AndroidTabNavigator() {
+// Helper function to get iOS version
+function getIOSVersion(): number | null {
+  if (Platform.OS !== 'ios') return null;
+
+  const version = Constants.platform?.ios?.systemVersion;
+  if (!version) return null;
+  const majorVersion = parseInt(version.split('.')[0], 10);
+  return majorVersion;
+}
+
+// Normal Tab Bar (used on Android and iOS 18 and below)
+function NormalTabLayout() {
   const insets = useSafeAreaInsets();
 
   return (
@@ -61,8 +72,8 @@ function AndroidTabNavigator() {
   );
 }
 
-// iOS Liquid Glass Tab Bar
-function IOSTabLayout() {
+// Liquid Glass Tab Bar (used on iOS 26+)
+function LiquidGlassTabLayout() {
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="index">
@@ -79,8 +90,16 @@ function IOSTabLayout() {
 
 export default function TabLayout() {
   if (Platform.OS === 'android') {
-    return <AndroidTabNavigator />;
+    return <NormalTabLayout />;
   }
 
-  return <IOSTabLayout />;
+  // For iOS, check version
+  const iosVersion = getIOSVersion();
+
+  // Use liquid glass tabs on iOS 26+ (both iPhone and iPad)
+  if (iosVersion && iosVersion >= 26) {
+    return <LiquidGlassTabLayout />;
+  }
+
+  return <NormalTabLayout />;
 }
