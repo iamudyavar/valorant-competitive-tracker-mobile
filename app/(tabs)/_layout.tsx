@@ -44,6 +44,7 @@ function NormalTabLayout() {
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '500',
+          marginTop: 2,
         },
         tabBarIconStyle: {
           marginTop: 4,
