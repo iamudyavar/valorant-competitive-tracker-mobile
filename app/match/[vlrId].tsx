@@ -417,8 +417,6 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
 };
 
 
-// Player stats row component - REMOVED, will be replaced by the new structure in MapStats
-
 // Map stats component
 const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     const team1Players = map.stats.filter(p => p.teamName === match.team1.name);
@@ -443,7 +441,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     };
 
     // Determine if we should use wide screen layout (tablets and larger screens)
-    const isWideScreen = width >= 600; // 768px breakpoint for tablets
+    const isWideScreen = width >= 600; // Breakpoint for wide screens
 
     return (
         <View style={styles.mapStatsContainer}>
@@ -541,7 +539,6 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                             horizontal
                             showsHorizontalScrollIndicator={false}
                             style={styles.tableScrollContainer}
-                            contentContainerStyle={styles.tableScrollContent}
                             onScroll={(event) => {
                                 setScrollX(event.nativeEvent.contentOffset.x);
                             }}
@@ -913,21 +910,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     stickyColumn: {
-        width: 140, // Should match playerHeader width
-        backgroundColor: Colors.surface, // Ensure it has a background
+        width: 140,
+        backgroundColor: Colors.surface,
         zIndex: 1,
     },
     scrollableTable: {
-        minWidth: 400, // Sum of all stat column widths
+        minWidth: 400,
     },
     tableScrollContainer: {
         flex: 1,
     },
-    tableScrollContent: {
-        // flexGrow: 1, // This was causing the dead space
-    },
     tableContainer: {
-        minWidth: 500, // Exact width needed for all columns (140+40+40+40+50+50+50+50+40+40)
+        minWidth: 500,
     },
     tableHeader: {
         flexDirection: 'row',
@@ -1116,7 +1110,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 16, // Match the statsTable padding
+        paddingHorizontal: 16,
         marginBottom: 16,
     },
     timelineTitle: {
@@ -1134,7 +1128,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     timelineScrollView: {
-        paddingHorizontal: 16, // Match timelineHeader padding
+        paddingHorizontal: 16,
         overflow: 'visible',
     },
     timelineContent: {
@@ -1187,8 +1181,8 @@ const styles = StyleSheet.create({
     },
     roundPopup: {
         position: 'absolute',
-        bottom: 70, // Position above the round bubble
-        left: -10, // Center the popup above the round bubble
+        bottom: 70,
+        left: -10,
         right: -10,
         backgroundColor: Colors.surfaceSecondary,
         padding: 8,
@@ -1287,7 +1281,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     wideScreenPlayerHeader: {
-        flex: 3, // Larger flex for player column
+        flex: 3,
         textAlign: 'left',
     },
     wideScreenKillsHeader: {
@@ -1339,7 +1333,7 @@ const styles = StyleSheet.create({
     wideScreenPlayerInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        flex: 3, // Match header flex
+        flex: 3,
     },
     wideScreenPlayerName: {
         color: Colors.textPrimary,
@@ -1355,31 +1349,31 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     wideScreenKillsCell: {
-        flex: 1, // Match header flex
+        flex: 1,
     },
     wideScreenDeathsCell: {
-        flex: 1, // Match header flex
+        flex: 1,
     },
     wideScreenAssistsCell: {
-        flex: 1, // Match header flex
+        flex: 1,
     },
     wideScreenPlusMinusCell: {
-        flex: 1.2, // Match header flex
+        flex: 1.2,
         fontFamily: 'Inter_600SemiBold',
     },
     wideScreenAcsCell: {
-        flex: 1.4, // Match header flex
+        flex: 1.4,
     },
     wideScreenAdrCell: {
-        flex: 1.4, // Match header flex
+        flex: 1.4,
     },
     wideScreenHsCell: {
-        flex: 1.2, // Match header flex
+        flex: 1.2,
     },
     wideScreenFkCell: {
-        flex: 1, // Match header flex
+        flex: 1,
     },
     wideScreenFdCell: {
-        flex: 1, // Match header flex
+        flex: 1,
     },
 });

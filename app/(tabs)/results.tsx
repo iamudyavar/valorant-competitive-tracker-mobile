@@ -95,7 +95,7 @@ export default function ResultsPage() {
 
   // Handle different states
   const isOffline = !isConnected || isInternetReachable === false;
-  const hasError = false; // Convex doesn't have an 'Error' status, it returns null on error
+  const hasError = false;
 
   if (hasError) {
     return (

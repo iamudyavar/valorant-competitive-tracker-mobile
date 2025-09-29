@@ -1,10 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 
-// Define the type for the match card prop based on your Convex query's transformation
 type MatchCardProps = {
     vlrId: string;
     status: 'live' | 'upcoming' | 'completed';
@@ -15,12 +13,11 @@ type MatchCardProps = {
 };
 
 // Function to format time where input string represents Eastern time (America/New_York)
-// and should be displayed in the user's local timezone without hardcoding a zone.
+// and should be displayed in the user's local timezone.
 const formatTime = (timeString: string) => {
     try {
         const sourceTimeZone = 'America/New_York';
 
-        // Extract components from ISO-like string regardless of trailing 'Z'
         // Expected: YYYY-MM-DDTHH:MM(:SS)?.*
         const match = timeString.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?/);
         if (!match) {

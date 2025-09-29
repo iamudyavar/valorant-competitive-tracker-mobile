@@ -45,12 +45,6 @@ export default function HomePage() {
       setIsSlowConnection(false);
     }
   }, [matchesData, isConnected, isInternetReachable]);
-
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
-    setIsSlowConnection(false);
-  };
-
   // Handle different states
   const isOffline = !isConnected || isInternetReachable === false;
   const isLoading = matchesData === undefined && !isOffline;
@@ -120,7 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    minHeight: 200, // Ensure centered view has height within ScrollView
+    minHeight: 200,
   },
   section: {
     marginTop: 20,

@@ -13,11 +13,8 @@ const Tab = createBottomTabNavigator();
 // Helper function to get iOS version
 function getIOSVersion(): number | null {
   if (Platform.OS !== 'ios') return null;
-
   const version = Platform.Version;
   if (!version) return null;
-
-  // Platform.Version returns a string on iOS, so we need to parse it
   const versionString = String(version);
   const majorVersion = parseInt(versionString.split('.')[0], 10);
   return majorVersion;
