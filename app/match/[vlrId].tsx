@@ -1266,7 +1266,7 @@ const styles = StyleSheet.create({
     teamLabel: {
         color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
-        fontSize: 18,
+        fontSize: 20,
         marginBottom: 8,
     },
 
