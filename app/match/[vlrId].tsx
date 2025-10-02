@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Pressable, Dimensions, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable, Dimensions } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from 'convex/react';
@@ -88,6 +88,15 @@ const useDimensions = () => {
 
 
 
+// Helper to robustly display a map name
+const getMapDisplayName = (name: string | null | undefined) => {
+    if (!name) return 'No Map Provided';
+    const trimmed = name.trim();
+    if (trimmed.length === 0) return 'No Map Provided';
+    if (trimmed.toUpperCase().startsWith('TBD')) return 'No Map Provided';
+    return trimmed;
+};
+
 // Match header component
 const MatchHeader = ({ match }: { match: MatchData }) => (
     <View style={styles.matchHeader}>
@@ -160,7 +169,7 @@ const MapTab = ({ map, isActive, onPress }: { map: MapData; isActive: boolean; o
     >
         <View style={styles.mapTabContent}>
             <Text style={[styles.mapTabText, isActive && styles.activeMapTabText]}>
-                {map.name}
+                {getMapDisplayName(map.name)}
             </Text>
             {map.status === 'live' && (
                 <View style={styles.liveDot} />
@@ -187,6 +196,10 @@ const WinConditionIcon = ({ condition }: { condition: string | null }) => {
 // Round timeline component
 const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
     const [pressedRound, setPressedRound] = useState<number | null>(null);
+    const scrollRef = useRef<ScrollView | null>(null);
+    const didAutoScrollRef = useRef(false);
+    const roundPositionsRef = useRef<{ [key: number]: number }>({});
+    const [viewportWidth, setViewportWidth] = useState<number | null>(null);
 
     const getTeamColor = (teamName: string | null) => {
         if (!teamName) return Colors.textMuted;
@@ -217,10 +230,44 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
         return { team1Wins, team2Wins };
     };
 
+    const filteredRounds = map.rounds.filter(round =>
+        map.status === 'completed' ? round.winCondition !== null : true
+    );
     const completedRounds = map.rounds.filter(round => round.winningTeam !== null);
-    const totalRounds = map.rounds.length;
     const team1Wins = completedRounds.filter(round => round.winningTeam === match.team1.name).length;
     const team2Wins = completedRounds.filter(round => round.winningTeam === match.team2.name).length;
+
+    useEffect(() => {
+        if (map.status !== 'live') return;
+        if (didAutoScrollRef.current) return;
+        if (!Array.isArray(filteredRounds) || filteredRounds.length === 0) return;
+
+        // Find last completed round index within filteredRounds
+        let lastCompletedIndex: number | undefined = undefined;
+        for (let i = filteredRounds.length - 1; i >= 0; i--) {
+            const r = filteredRounds[i];
+            if (r.winningTeam !== null && r.winCondition !== null) {
+                lastCompletedIndex = i;
+                break;
+            }
+        }
+
+        if (lastCompletedIndex === undefined) {
+            didAutoScrollRef.current = true;
+            return;
+        }
+
+        const x = roundPositionsRef.current[lastCompletedIndex];
+        if (typeof x === 'number' && typeof viewportWidth === 'number') {
+            // Defer to ensure layouts are committed
+            setTimeout(() => {
+                const roundCenterX = x + 30;
+                const targetOffset = Math.max(roundCenterX - viewportWidth / 2, 0);
+                scrollRef.current?.scrollTo({ x: targetOffset, animated: true });
+            }, 0);
+            didAutoScrollRef.current = true;
+        }
+    }, [map.status, filteredRounds.length, viewportWidth]);
 
     return (
         <View style={styles.timelineContainer}>
@@ -238,25 +285,28 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
             </View>
 
             <ScrollView
+                ref={scrollRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 style={styles.timelineScrollView}
                 contentContainerStyle={styles.timelineContent}
+                onLayout={(e) => setViewportWidth(e.nativeEvent.layout.width)}
             >
-                {map.rounds.filter(round =>
-                    map.status === 'completed' ? round.winCondition !== null : true
-                ).map((round, index) => {
+                {filteredRounds.map((round, index) => {
                     const isCompleted = round.winningTeam !== null && round.winCondition !== null;
                     const isPressed = pressedRound === round.roundNumber;
                     const teamColor = getTeamColor(round.winningTeam);
-                    const filteredRounds = map.rounds.filter(round =>
-                        map.status === 'completed' ? round.winCondition !== null : true
-                    );
                     const isLastRound = index === filteredRounds.length - 1;
                     const scoreAtRound = getScoreAtRound(round.roundNumber);
 
                     return (
-                        <View key={round.roundNumber} style={styles.roundContainer}>
+                        <View
+                            key={round.roundNumber}
+                            style={styles.roundContainer}
+                            onLayout={(e) => {
+                                roundPositionsRef.current[index] = e.nativeEvent.layout.x;
+                            }}
+                        >
                             <Pressable
                                 style={[
                                     styles.roundItem,
@@ -501,7 +551,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
             <View style={styles.mapHeader}>
                 <View style={styles.mapInfo}>
                     <View style={styles.mapNameContainer}>
-                        <Text style={styles.mapName}>{map.name}</Text>
+                        <Text style={styles.mapName}>{getMapDisplayName(map.name)}</Text>
                         {map.status === 'live' && (
                             <View style={styles.mapLiveIndicator}>
                                 <View style={styles.mapLiveDot} />
@@ -519,9 +569,13 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
             </View>
 
             {/* Round Timeline */}
-            {map.status !== 'upcoming' && (
-                <RoundTimeline map={map} match={match} />
-            )}
+            {(() => {
+                const hasAnyCompletedRound = Array.isArray(map.rounds) && map.rounds.some(r => r.winningTeam !== null && r.winCondition !== null);
+                const shouldShowTimeline = map.status === 'live' || (map.status === 'completed' && hasAnyCompletedRound);
+                return shouldShowTimeline ? (
+                    <RoundTimeline map={map} match={match} />
+                ) : null;
+            })()}
 
             {/* If the map is upcoming, show a notice instead of stats */}
             {map.status === 'upcoming' ? (
@@ -1026,7 +1080,9 @@ const styles = StyleSheet.create({
 
     // Stats Table Styles
     statsTableWrapper: {
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingTop: 8,
+        paddingBottom: 16,
     },
     statsTable: {
         flexDirection: 'row',
@@ -1224,7 +1280,7 @@ const styles = StyleSheet.create({
     // Timeline Styles
     timelineContainer: {
         backgroundColor: Colors.surface,
-        marginBottom: 8,
+        marginBottom: 4,
         paddingVertical: 16,
         overflow: 'visible',
     },
