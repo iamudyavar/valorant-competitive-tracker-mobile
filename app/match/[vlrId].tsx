@@ -397,10 +397,44 @@ const PlayerStatsData = ({ player, mapStatus }: { player: PlayerStats; mapStatus
     );
 };
 
+// Agents row for All Maps: shows unique agent icons from other maps below player name
+const PlayerAgentsFromOtherMaps = ({ player, match }: { player: PlayerStats; match: MatchData }) => {
+    const playerKey = player.playerId ?? `name:${player.playerName}`;
+    const iconsSet = new Set<string>();
+    for (const m of match.maps) {
+        if (m?.name?.trim().toLowerCase() === 'all maps') continue;
+        const found = m.stats.find(s => (s.playerId ?? `name:${s.playerName}`) === playerKey);
+        const url = found?.agent?.iconUrl ?? undefined;
+        if (url) iconsSet.add(url);
+    }
+    const icons = Array.from(iconsSet);
+    if (icons.length === 0) return null;
+    return (
+        <View style={styles.playerAgentsRow}>
+            {icons.map((url, index) => (
+                <Image key={index} source={{ uri: url }} style={styles.agentIconSmall} />
+            ))}
+        </View>
+    );
+};
+
 // Wide screen player stats component for larger screens
 const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     const team1Players = map.stats.filter(p => p.teamName === match.team1.name);
     const team2Players = map.stats.filter(p => p.teamName === match.team2.name);
+    const isAllMaps = map?.name?.trim().toLowerCase() === 'all maps';
+
+    const getPlayerAgentsFromOtherMaps = (player: PlayerStats): string[] => {
+        const playerKey = player.playerId ?? `name:${player.playerName}`;
+        const iconsSet = new Set<string>();
+        for (const m of match.maps) {
+            if (m?.name?.trim().toLowerCase() === 'all maps') continue;
+            const found = m.stats.find(s => (s.playerId ?? `name:${s.playerName}`) === playerKey);
+            const url = found?.agent?.iconUrl ?? undefined;
+            if (url) iconsSet.add(url);
+        }
+        return Array.from(iconsSet);
+    };
 
     return (
         <View style={styles.wideScreenTableContainer}>
@@ -440,14 +474,29 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                             WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
                                         }
                                     }}
-                                    style={styles.wideScreenPlayerInfo}
+                                    style={[styles.wideScreenPlayerInfo, isAllMaps && styles.playerInfoAllMaps]}
                                 >
-                                    {player.agent.iconUrl && (
-                                        <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                    {isAllMaps ? (
+                                        <>
+                                            <Text style={[styles.wideScreenPlayerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">
+                                                {player.playerName}
+                                            </Text>
+                                            <View style={styles.playerAgentsRow}>
+                                                {getPlayerAgentsFromOtherMaps(player).map((url, i) => (
+                                                    <Image key={i} source={{ uri: url }} style={styles.agentIconSmall} />
+                                                ))}
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {player.agent.iconUrl && (
+                                                <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                            )}
+                                            <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
+                                                {player.playerName}
+                                            </Text>
+                                        </>
                                     )}
-                                    <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
-                                        {player.playerName}
-                                    </Text>
                                 </Pressable>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
@@ -490,14 +539,29 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                             WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
                                         }
                                     }}
-                                    style={styles.wideScreenPlayerInfo}
+                                    style={[styles.wideScreenPlayerInfo, isAllMaps && styles.playerInfoAllMaps]}
                                 >
-                                    {player.agent.iconUrl && (
-                                        <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                    {isAllMaps ? (
+                                        <>
+                                            <Text style={[styles.wideScreenPlayerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">
+                                                {player.playerName}
+                                            </Text>
+                                            <View style={styles.playerAgentsRow}>
+                                                {getPlayerAgentsFromOtherMaps(player).map((url, i) => (
+                                                    <Image key={i} source={{ uri: url }} style={styles.agentIconSmall} />
+                                                ))}
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {player.agent.iconUrl && (
+                                                <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                            )}
+                                            <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
+                                                {player.playerName}
+                                            </Text>
+                                        </>
                                     )}
-                                    <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
-                                        {player.playerName}
-                                    </Text>
                                 </Pressable>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
@@ -529,6 +593,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     const team1Players = map.stats.filter(p => p.teamName === match.team1.name);
     const team2Players = map.stats.filter(p => p.teamName === match.team2.name);
     const { width } = useDimensions(); // Use dynamic dimensions
+    const isAllMaps = map?.name?.trim().toLowerCase() === 'all maps';
 
     const [scrollX, setScrollX] = useState(0);
     const [contentWidth, setContentWidth] = useState(0);
@@ -619,7 +684,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                             <View style={styles.teamSection}>
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
                                 {team1Players.map((player, index) => (
-                                    <View key={index} style={styles.playerRow}>
+                                    <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                         <Pressable
                                             accessibilityRole="link"
                                             accessibilityHint="Opens player page in in-app browser"
@@ -628,12 +693,21 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                                     WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
                                                 }
                                             }}
-                                            style={styles.playerInfo}
+                                            style={[styles.playerInfo, isAllMaps && styles.playerInfoAllMaps]}
                                         >
-                                            {player.agent.iconUrl && (
-                                                <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                            {isAllMaps ? (
+                                                <>
+                                                    <Text style={[styles.playerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                    <PlayerAgentsFromOtherMaps player={player} match={match} />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {player.agent.iconUrl && (
+                                                        <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                                    )}
+                                                    <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                </>
                                             )}
-                                            <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
                                         </Pressable>
                                     </View>
                                 ))}
@@ -643,7 +717,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                             <View style={styles.teamSection}>
                                 <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
                                 {team2Players.map((player, index) => (
-                                    <View key={index} style={styles.playerRow}>
+                                    <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                         <Pressable
                                             accessibilityRole="link"
                                             accessibilityHint="Opens player page in in-app browser"
@@ -652,12 +726,21 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                                     WebBrowser.openBrowserAsync(`https://www.vlr.gg/player/${player.playerId}/`);
                                                 }
                                             }}
-                                            style={styles.playerInfo}
+                                            style={[styles.playerInfo, isAllMaps && styles.playerInfoAllMaps]}
                                         >
-                                            {player.agent.iconUrl && (
-                                                <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                            {isAllMaps ? (
+                                                <>
+                                                    <Text style={[styles.playerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                    <PlayerAgentsFromOtherMaps player={player} match={match} />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {player.agent.iconUrl && (
+                                                        <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
+                                                    )}
+                                                    <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                </>
                                             )}
-                                            <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
                                         </Pressable>
                                     </View>
                                 ))}
@@ -700,7 +783,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                     {/* Invisible label for spacing */}
                                     <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
                                     {team1Players.map((player, index) => (
-                                        <View key={index} style={styles.playerRow}>
+                                        <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                             <PlayerStatsData player={player} mapStatus={map.status} />
                                         </View>
                                     ))}
@@ -711,7 +794,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                     {/* Invisible label for spacing */}
                                     <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
                                     {team2Players.map((player, index) => (
-                                        <View key={index} style={styles.playerRow}>
+                                        <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                             <PlayerStatsData player={player} mapStatus={map.status} />
                                         </View>
                                     ))}
@@ -1191,14 +1274,26 @@ const styles = StyleSheet.create({
     playerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 48, // Use fixed height for alignment
+        minHeight: 48,
         borderBottomWidth: 1,
         borderBottomColor: Colors.dividerSecondary,
+    },
+    playerRowAllMaps: {
+        minHeight: 60,
     },
     playerInfo: {
         flexDirection: 'row',
         alignItems: 'center',
         width: 140,
+    },
+    // All Maps overrides for player info/name spacing
+    playerInfoAllMaps: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        width: 140,
+        paddingTop: 2,
+        paddingBottom: 2,
     },
     playerName: {
         color: Colors.textPrimary,
@@ -1207,10 +1302,26 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 6,
     },
+    playerNameAllMaps: {
+        marginLeft: 0,
+        marginBottom: 3,
+        paddingTop: 2,
+    },
     agentIcon: {
         width: 28,
         height: 28,
         borderRadius: 14,
+    },
+    agentIconSmall: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        marginRight: 6,
+    },
+    playerAgentsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 2,
     },
     acsText: {
         color: Colors.textPrimary,
