@@ -230,7 +230,7 @@ export default function ResultsPage() {
                   Separate multiple search terms with a comma
                 </Text>
                 <Text style={styles.helpExample}>
-                  Examples: "mibr vs nrg, VCT", "NRG, Champions"
+                  Examples: "g2, americas stage 2", "nrg vs prx, masters tokyo"
                 </Text>
               </View>
 
