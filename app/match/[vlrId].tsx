@@ -810,9 +810,9 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
 export default function MatchDetailPage() {
     const insets = useSafeAreaInsets();
-    const fabBottomOffset = Math.max(16, 16 + insets.bottom);
-    const fabHeight = 48; // approximate button height
-    const contentBottomPadding = fabBottomOffset + fabHeight + 12; // ensure content clears FAB
+    const fabBottomOffset = Math.max(10, 10 + insets.bottom);
+    const fabHeight = 40; // approximate button height, tighter spacing
+    const contentBottomPadding = fabBottomOffset + fabHeight + 6; // tighter padding below content
     const { vlrId } = useLocalSearchParams();
     const { isConnected, isInternetReachable } = useNetwork();
     const [isSlowConnection, setIsSlowConnection] = useState(false);
@@ -1057,7 +1057,7 @@ const styles = StyleSheet.create({
         gap: 8,
         backgroundColor: Colors.accent,
         borderRadius: 24,
-        paddingVertical: 12,
+        paddingVertical: 8,
         paddingHorizontal: 18,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
