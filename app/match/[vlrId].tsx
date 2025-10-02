@@ -49,6 +49,7 @@ interface MatchData {
     vlrId: string;
     status: 'live' | 'upcoming' | 'completed';
     time: string;
+    patch: string | null;
     team1: {
         teamId: string | null;
         name: string;
@@ -114,6 +115,9 @@ const MatchHeader = ({ match }: { match: MatchData }) => (
                 {match.event.name}
             </Text>
             <Text style={styles.eventSeries}>{match.event.series}</Text>
+            {match.patch && (
+                <Text style={styles.eventPatch}>Patch {match.patch}</Text>
+            )}
         </View>
 
         <View style={styles.teamsContainer}>
@@ -565,7 +569,9 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                         </Text>
                     )}
                 </View>
-                <Text style={styles.mapScore}>{map.team1Score} - {map.team2Score}</Text>
+                {!(map?.name?.trim().toLowerCase() === 'all maps') && (
+                    <Text style={styles.mapScore}>{map.team1Score} - {map.team2Score}</Text>
+                )}
             </View>
 
             {/* Round Timeline */}
@@ -893,6 +899,12 @@ const styles = StyleSheet.create({
         color: Colors.textSecondary,
         fontFamily: 'Inter_400Regular',
         fontSize: 14,
+    },
+    eventPatch: {
+        color: Colors.textSecondary,
+        fontFamily: 'Inter_400Regular',
+        fontSize: 12,
+        marginTop: 4,
     },
     teamsContainer: {
         flexDirection: 'row',
