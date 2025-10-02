@@ -2,6 +2,8 @@
 
 Stay on top of Valorant esports with real‑time match scores, team stats, and player highlights - all in a fast, mobile‑first experience.
 
+See the data behind it: https://github.com/iamudyavar/vlr-scraper
+
 ### Screenshots
 <table>
   <tr>
@@ -40,7 +42,6 @@ Stay on top of Valorant esports with real‑time match scores, team stats, and p
 - `components/` – reusable UI (e.g., match cards, loading states)
 - `providers/` – app‑level context (network, Convex client)
 - `hooks/` – data fetching and network‑aware queries
-- `theme/` – colors and design tokens
 
 ### Notes
-- Live data is fetched and rendered continuously so you can track scores and stats as they happen. No need for refreshing the page.
+- Live data is rendered continuously so you can track scores and stats as they happen - no need for refreshing the page.
