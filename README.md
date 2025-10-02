@@ -46,4 +46,4 @@ See the data behind it: https://github.com/iamudyavar/vlr-scraper
 
 ### Notes
 - Live data is rendered continuously so you can track scores and stats as they happen - no need for refreshing the page.
-- Enjoy beautiful liquid glass components on iOS 26 and above
+- Enjoy beautiful liquid glass components on iOS 26 and above.
