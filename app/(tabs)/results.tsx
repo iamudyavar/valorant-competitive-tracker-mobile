@@ -224,6 +224,16 @@ export default function ResultsPage() {
                 </Text>
               </View>
 
+              <View style={styles.helpItem}>
+                <Text style={styles.helpItemTitle}>🧩 Combine Terms</Text>
+                <Text style={styles.helpItemDescription}>
+                  Separate multiple search terms with a comma
+                </Text>
+                <Text style={styles.helpExample}>
+                  Examples: "mibr vs nrg, VCT", "NRG, Champions"
+                </Text>
+              </View>
+
             </View>
           </TouchableOpacity>
         </TouchableOpacity>
