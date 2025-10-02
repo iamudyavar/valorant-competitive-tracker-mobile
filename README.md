@@ -30,6 +30,7 @@ See the data behind it: https://github.com/iamudyavar/vlr-scraper
 
 ### Getting started
 1. Install dependencies: `npm install`
+2. Add a .env file with the URL to your Convex deployment - EXPO_PUBLIC_CONVEX_URL
 2. Start the app: `npx expo start`
 3. Run on device or emulator via Expo Dev Tools (iOS Simulator / Android Emulator / Expo Go).
 
@@ -45,3 +46,4 @@ See the data behind it: https://github.com/iamudyavar/vlr-scraper
 
 ### Notes
 - Live data is rendered continuously so you can track scores and stats as they happen - no need for refreshing the page.
+- Enjoy beautiful liquid glass components on iOS 26 and above
