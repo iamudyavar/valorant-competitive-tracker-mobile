@@ -1,51 +1,43 @@
 {
   "expo": {
-    "name": "vlr-clone",
-    "slug": "vlr-clone",
+    "name": "93 Stats",
+    "slug": "93-Stats",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/images/icon.png",
-    "scheme": "vlrclone",
+    "icon": "./assets/images/93.png",
+    "scheme": "93stats",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "primaryColor": "#2A2A2A",
     "ios": {
+      "icon": "./assets/images/93.icon",
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.vlr-clone",
+      "bundleIdentifier": "com.amudev.ninethreestats",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "privacyManifests": {
+        "NSPrivacyTracking": false
+      },
+      "splash": {
+        "backgroundColor": "#2A2A2A",
+        "image": "./assets/images/93.png"
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
+      "icon": "./assets/images/93.png",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.vlrclone"
+      "package": "com.amudev.ninethreestats",
+      "splash": {
+        "backgroundColor": "#2A2A2A",
+        "image": "./assets/images/93.png"
+      }
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/93.png"
     },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "image": "./assets/images/splash-icon.png",
-            "backgroundColor": "#2A2A2A"
-          }
-        }
-      ]
-    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

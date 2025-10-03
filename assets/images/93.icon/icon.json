@@ -2,15 +2,23 @@
   "fill" : {
     "linear-gradient" : [
       "display-p3:1.00000,1.00000,1.00000,1.00000",
-      "extended-gray:1.00000,1.00000"
+      "display-p3:1.00000,1.00000,1.00000,1.00000"
     ]
   },
   "groups" : [
     {
+      "hidden" : false,
       "layers" : [
         {
-          "image-name" : "logo_header 3.svg",
-          "name" : "logo_header 3"
+          "image-name" : "NT 3.png",
+          "name" : "NT 3",
+          "position" : {
+            "scale" : 2.15,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
         }
       ],
       "shadow" : {
