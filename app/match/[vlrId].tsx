@@ -1303,7 +1303,7 @@ const styles = StyleSheet.create({
         marginLeft: 6,
     },
     playerNameAllMaps: {
-        marginLeft: 6,
+        marginLeft: 0,
         marginBottom: 3,
         paddingTop: 2,
     },
@@ -1322,7 +1322,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 2,
-        marginLeft: 6,
     },
     acsText: {
         color: Colors.textPrimary,

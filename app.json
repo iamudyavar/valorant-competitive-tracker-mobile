@@ -9,10 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "primaryColor": "#2A2A2A",
+    "backgroundColor": "#2A2A2A",
     "ios": {
       "icon": "./assets/images/93.icon",
       "supportsTablet": true,
       "bundleIdentifier": "com.amudev.ninethreestats",
+      "backgroundColor": "#2A2A2A",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -29,6 +31,7 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.amudev.ninethreestats",
+      "backgroundColor": "#2A2A2A",
       "splash": {
         "backgroundColor": "#2A2A2A",
         "image": "./assets/images/93.png"
