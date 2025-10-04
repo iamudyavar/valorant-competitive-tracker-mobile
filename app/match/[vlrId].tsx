@@ -28,6 +28,7 @@ interface PlayerStats {
         headshotPercent: number;
         firstKills: number;
         firstDeaths: number;
+        rating: number;
     };
 }
 
@@ -393,6 +394,8 @@ const PlayerStatsData = ({ player, mapStatus }: { player: PlayerStats; mapStatus
             <Text style={styles.hsText}>{player.stats.headshotPercent}%</Text>
             <Text style={styles.fkText}>{player.stats.firstKills}</Text>
             <Text style={styles.fdText}>{player.stats.firstDeaths}</Text>
+            <Text style={styles.ratingText}>{mapStatus === 'live' ? '' : (player.stats.rating || 0).toFixed(2)}</Text>
+            <Text style={styles.kastText}>{(player.stats.kastPercent || 0)}%</Text>
         </>
     );
 };
@@ -451,6 +454,8 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                     <Text style={[styles.wideScreenHeaderCell, styles.wideScreenHsHeader]}>HS%</Text>
                     <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFkHeader]}>FK</Text>
                     <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFdHeader]}>FD</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenRatingHeader]}>R²</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenKastHeader]}>KAST</Text>
                 </View>
 
                 {/* Team 1 Players */}
@@ -513,6 +518,10 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]}>{player.stats.headshotPercent}%</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]}>{player.stats.firstKills}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]}>{player.stats.firstDeaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenRatingCell]}>
+                                    {map.status === 'live' ? '' : (player.stats.rating || 0).toFixed(2)}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKastCell]}>{(player.stats.kastPercent || 0)}%</Text>
                             </View>
                         );
                     })}
@@ -578,6 +587,10 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]}>{player.stats.headshotPercent}%</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]}>{player.stats.firstKills}</Text>
                                 <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]}>{player.stats.firstDeaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenRatingCell]}>
+                                    {map.status === 'live' ? '' : (player.stats.rating || 0).toFixed(2)}
+                                </Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKastCell]}>{(player.stats.kastPercent || 0)}%</Text>
                             </View>
                         );
                     })}
@@ -776,6 +789,8 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                     <Text style={[styles.headerCell, styles.hsHeader]}>HS%</Text>
                                     <Text style={[styles.headerCell, styles.fkHeader]}>FK</Text>
                                     <Text style={[styles.headerCell, styles.fdHeader]}>FD</Text>
+                                    <Text style={[styles.headerCell, styles.ratingHeader]}>R²</Text>
+                                    <Text style={[styles.headerCell, styles.kastHeader]}>KAST</Text>
                                 </View>
 
                                 {/* Team 1 Players */}
@@ -1188,7 +1203,7 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     scrollableTable: {
-        minWidth: 400,
+        minWidth: 500,
     },
     tableScrollContainer: {
         flex: 1,
@@ -1255,6 +1270,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     plusMinusHeader: {
+        width: 50,
+        textAlign: 'center',
+    },
+    ratingHeader: {
         width: 50,
         textAlign: 'center',
     },
@@ -1395,6 +1414,13 @@ const styles = StyleSheet.create({
     },
     plusMinusText: {
         fontFamily: 'Inter_600SemiBold',
+        fontSize: 16,
+        textAlign: 'center',
+        width: 50,
+    },
+    ratingText: {
+        color: Colors.textPrimary,
+        fontFamily: 'Inter_500Medium',
         fontSize: 16,
         textAlign: 'center',
         width: 50,
@@ -1612,6 +1638,12 @@ const styles = StyleSheet.create({
     wideScreenFdHeader: {
         flex: 1,
     },
+    wideScreenRatingHeader: {
+        flex: 1.2,
+    },
+    wideScreenKastHeader: {
+        flex: 1.2,
+    },
     wideScreenTeamSection: {
         marginBottom: 8,
     },
@@ -1676,5 +1708,11 @@ const styles = StyleSheet.create({
     },
     wideScreenFdCell: {
         flex: 1,
+    },
+    wideScreenRatingCell: {
+        flex: 1.2,
+    },
+    wideScreenKastCell: {
+        flex: 1.2,
     },
 });
