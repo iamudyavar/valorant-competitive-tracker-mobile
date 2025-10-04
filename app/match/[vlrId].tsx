@@ -1459,7 +1459,7 @@ const styles = StyleSheet.create({
         overflow: 'visible',
     },
     timelineContent: {
-        paddingRight: 0, // Remove extra padding that might cause dead space
+        paddingRight: 0,
     },
     roundContainer: {
         alignItems: 'center',
@@ -1555,7 +1555,7 @@ const styles = StyleSheet.create({
     },
     scrollIndicatorLeft: {
         position: 'absolute',
-        left: 140, // Align with the start of the scrollable area
+        left: 140,
         top: 0,
         bottom: 0,
         width: 24,
