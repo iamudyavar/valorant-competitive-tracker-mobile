@@ -5,7 +5,9 @@
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/images/93.png",
-    "scheme": "93stats",
+    "scheme": [
+      "93stats"
+    ],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "primaryColor": "#2A2A2A",
@@ -16,7 +18,11 @@
       "bundleIdentifier": "com.amudev.ninethreestats",
       "backgroundColor": "#2A2A2A",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIDeviceFamily": [
+          1,
+          2
+        ]
       },
       "privacyManifests": {
         "NSPrivacyTracking": false
