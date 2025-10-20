@@ -614,7 +614,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     const scrollViewRef = useRef<ScrollView>(null);
 
     const showLeftArrow = scrollX > 0;
-    const showRightArrow = scrollX < contentWidth - containerWidth - 10; // 10px buffer
+    const showRightArrow = scrollX < contentWidth - containerWidth - 10;
 
     const scrollToLeft = () => {
         scrollViewRef.current?.scrollTo({ x: 0, animated: true });
@@ -826,8 +826,8 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 export default function MatchDetailPage() {
     const insets = useSafeAreaInsets();
     const fabBottomOffset = Math.max(10, 10 + insets.bottom);
-    const fabHeight = 40; // approximate button height, tighter spacing
-    const contentBottomPadding = fabBottomOffset + fabHeight + 6; // tighter padding below content
+    const fabHeight = 40;
+    const contentBottomPadding = fabBottomOffset + fabHeight + 6;
     const { vlrId } = useLocalSearchParams();
     const { isConnected, isInternetReachable } = useNetwork();
     const [isSlowConnection, setIsSlowConnection] = useState(false);
