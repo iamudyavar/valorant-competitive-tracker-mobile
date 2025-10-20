@@ -17,6 +17,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.amudev.ninethreestats",
       "backgroundColor": "#2A2A2A",
+      "splash": {
+        "backgroundColor": "#2A2A2A",
+        "image": "./assets/images/93.png"
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIDeviceFamily": [
@@ -25,11 +29,33 @@
         ]
       },
       "privacyManifests": {
-        "NSPrivacyTracking": false
-      },
-      "splash": {
-        "backgroundColor": "#2A2A2A",
-        "image": "./assets/images/93.png"
+        "NSPrivacyTracking": false,
+        "NSPrivacyCollectedDataTypes": [
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyDataTypeDeviceID",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyPurposeAnalytics"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyDataTypeProductInteraction",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyPurposeAnalytics"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyDataTypeDiagnostics",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyPurposeAnalytics"
+            ]
+          }
+        ]
       }
     },
     "android": {
@@ -42,10 +68,6 @@
         "backgroundColor": "#2A2A2A",
         "image": "./assets/images/93.png"
       }
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/93.png"
     },
     "experiments": {
       "typedRoutes": true,
