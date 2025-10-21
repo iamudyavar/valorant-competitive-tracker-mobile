@@ -133,7 +133,6 @@ const MatchHeader = ({ match }: { match: MatchData }) => (
                     }}
                     style={{ alignItems: 'center' }}
                 >
-                    <Image source={{ uri: match.team1.logoUrl }} style={styles.teamLogo} />
                     <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team1.name}</Text>
                 </Pressable>
             </View>
@@ -158,7 +157,6 @@ const MatchHeader = ({ match }: { match: MatchData }) => (
                     }}
                     style={{ alignItems: 'center' }}
                 >
-                    <Image source={{ uri: match.team2.logoUrl }} style={styles.teamLogo} />
                     <Text style={styles.teamName} numberOfLines={2} ellipsizeMode="tail">{match.team2.name}</Text>
                 </Pressable>
             </View>
@@ -1012,12 +1010,6 @@ const styles = StyleSheet.create({
     teamHeaderSection: {
         alignItems: 'center',
         flex: 1,
-    },
-    teamLogo: {
-        width: 50,
-        height: 50,
-        resizeMode: 'contain',
-        marginBottom: 8,
     },
     teamName: {
         color: Colors.textPrimary,
