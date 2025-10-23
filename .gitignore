@@ -43,5 +43,6 @@ app-example
 /ios
 /android
 *.ipa
+*.aab
 
 convex/_generated/
