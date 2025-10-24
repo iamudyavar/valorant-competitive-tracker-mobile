@@ -275,13 +275,13 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
     return (
         <View style={styles.timelineContainer}>
             <View style={styles.timelineHeader}>
-                <Text style={styles.timelineTitle}>Round Timeline</Text>
+                <Text style={styles.timelineTitle} allowFontScaling={false}>Round Timeline</Text>
                 <View style={styles.timelineScore}>
-                    <Text style={[styles.timelineScoreText, { color: '#3b82f6' }]}>
+                    <Text style={[styles.timelineScoreText, { color: '#3b82f6' }]} allowFontScaling={false}>
                         {match.team1.shortName} {team1Wins}
                     </Text>
-                    <Text style={styles.timelineScoreText}> - </Text>
-                    <Text style={[styles.timelineScoreText, { color: '#FF4655' }]}>
+                    <Text style={styles.timelineScoreText} allowFontScaling={false}> - </Text>
+                    <Text style={[styles.timelineScoreText, { color: '#FF4655' }]} allowFontScaling={false}>
                         {team2Wins} {match.team2.shortName}
                     </Text>
                 </View>
@@ -323,13 +323,13 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 <Text style={[
                                     styles.roundNumber,
                                     { color: isCompleted ? teamColor : Colors.textMuted }
-                                ]}>
+                                ]} allowFontScaling={false}>
                                     {round.roundNumber}
                                 </Text>
 
                                 {isCompleted && (
                                     <View style={styles.roundDetails}>
-                                        <Text style={[styles.winningTeam, { color: teamColor }]}>
+                                        <Text style={[styles.winningTeam, { color: teamColor }]} allowFontScaling={false}>
                                             {getTeamShortName(round.winningTeam)}
                                         </Text>
                                         <WinConditionIcon condition={round.winCondition} />
@@ -337,17 +337,17 @@ const RoundTimeline = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 )}
 
                                 {!isCompleted && (
-                                    <Text style={styles.pendingText}>TBD</Text>
+                                    <Text style={styles.pendingText} allowFontScaling={false}>TBD</Text>
                                 )}
                             </Pressable>
 
                             {/* Press and hold popup */}
                             {isPressed && isCompleted && (
                                 <View style={styles.roundPopup}>
-                                    <Text style={styles.popupScore}>
+                                    <Text style={styles.popupScore} allowFontScaling={false}>
                                         {scoreAtRound.team1Wins} - {scoreAtRound.team2Wins}
                                     </Text>
-                                    <Text style={styles.popupWinCondition}>
+                                    <Text style={styles.popupWinCondition} allowFontScaling={false}>
                                         {getWinConditionText(round.winCondition)}
                                     </Text>
                                 </View>
@@ -381,19 +381,19 @@ const PlayerStatsData = ({ player, mapStatus }: { player: PlayerStats; mapStatus
 
     return (
         <>
-            <Text style={styles.killsText}>{player.stats.kills}</Text>
-            <Text style={styles.deathsText}>{player.stats.deaths}</Text>
-            <Text style={styles.assistsText}>{player.stats.assists}</Text>
-            <Text style={[styles.plusMinusText, { color: getPlusMinusColor(plusMinus) }]}>
+            <Text style={styles.killsText} allowFontScaling={false}>{player.stats.kills}</Text>
+            <Text style={styles.deathsText} allowFontScaling={false}>{player.stats.deaths}</Text>
+            <Text style={styles.assistsText} allowFontScaling={false}>{player.stats.assists}</Text>
+            <Text style={[styles.plusMinusText, { color: getPlusMinusColor(plusMinus) }]} allowFontScaling={false}>
                 {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
             </Text>
-            <Text style={styles.acsText}>{mapStatus === 'live' ? '' : player.stats.acs}</Text>
-            <Text style={styles.adrText}>{mapStatus === 'live' ? '' : player.stats.adr}</Text>
-            <Text style={styles.hsText}>{player.stats.headshotPercent}%</Text>
-            <Text style={styles.fkText}>{player.stats.firstKills}</Text>
-            <Text style={styles.fdText}>{player.stats.firstDeaths}</Text>
-            <Text style={styles.ratingText}>{mapStatus === 'live' ? '' : (player.stats.rating || 0).toFixed(2)}</Text>
-            <Text style={styles.kastText}>{(player.stats.kastPercent || 0)}%</Text>
+            <Text style={styles.acsText} allowFontScaling={false}>{mapStatus === 'live' ? '' : player.stats.acs}</Text>
+            <Text style={styles.adrText} allowFontScaling={false}>{mapStatus === 'live' ? '' : player.stats.adr}</Text>
+            <Text style={styles.hsText} allowFontScaling={false}>{player.stats.headshotPercent}%</Text>
+            <Text style={styles.fkText} allowFontScaling={false}>{player.stats.firstKills}</Text>
+            <Text style={styles.fdText} allowFontScaling={false}>{player.stats.firstDeaths}</Text>
+            <Text style={styles.ratingText} allowFontScaling={false}>{mapStatus === 'live' ? '' : (player.stats.rating || 0).toFixed(2)}</Text>
+            <Text style={styles.kastText} allowFontScaling={false}>{(player.stats.kastPercent || 0)}%</Text>
         </>
     );
 };
@@ -442,23 +442,23 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
             <View style={styles.wideScreenTable}>
                 {/* Header Row */}
                 <View style={styles.wideScreenHeaderRow}>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenPlayerHeader]}>Player</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenKillsHeader]}>K</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenDeathsHeader]}>D</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAssistsHeader]}>A</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenPlusMinusHeader]}>+/-</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAcsHeader]}>ACS</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAdrHeader]}>ADR</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenHsHeader]}>HS%</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFkHeader]}>FK</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFdHeader]}>FD</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenRatingHeader]}>R²</Text>
-                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenKastHeader]}>KAST</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenPlayerHeader]} allowFontScaling={false}>Player</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenKillsHeader]} allowFontScaling={false}>K</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenDeathsHeader]} allowFontScaling={false}>D</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAssistsHeader]} allowFontScaling={false}>A</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenPlusMinusHeader]} allowFontScaling={false}>+/-</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAcsHeader]} allowFontScaling={false}>ACS</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenAdrHeader]} allowFontScaling={false}>ADR</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenHsHeader]} allowFontScaling={false}>HS%</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFkHeader]} allowFontScaling={false}>FK</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenFdHeader]} allowFontScaling={false}>FD</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenRatingHeader]} allowFontScaling={false}>R²</Text>
+                    <Text style={[styles.wideScreenHeaderCell, styles.wideScreenKastHeader]} allowFontScaling={false}>KAST</Text>
                 </View>
 
                 {/* Team 1 Players */}
                 <View style={styles.wideScreenTeamSection}>
-                    <Text style={styles.wideScreenTeamLabel}>{match.team1.shortName}</Text>
+                    <Text style={styles.wideScreenTeamLabel} allowFontScaling={false}>{match.team1.shortName}</Text>
                     {team1Players.map((player, index) => {
                         const plusMinus = player.stats.kills - player.stats.deaths;
                         const getPlusMinusColor = (value: number) => {
@@ -481,7 +481,7 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                 >
                                     {isAllMaps ? (
                                         <>
-                                            <Text style={[styles.wideScreenPlayerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">
+                                            <Text style={[styles.wideScreenPlayerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
                                                 {player.playerName}
                                             </Text>
                                             <View style={styles.playerAgentsRow}>
@@ -495,31 +495,31 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                             {player.agent.iconUrl && (
                                                 <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                             )}
-                                            <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
+                                            <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
                                                 {player.playerName}
                                             </Text>
                                         </>
                                     )}
                                 </Pressable>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]}>{player.stats.assists}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenPlusMinusCell, { color: getPlusMinusColor(plusMinus) }]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]} allowFontScaling={false}>{player.stats.kills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]} allowFontScaling={false}>{player.stats.deaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]} allowFontScaling={false}>{player.stats.assists}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenPlusMinusCell, { color: getPlusMinusColor(plusMinus) }]} allowFontScaling={false}>
                                     {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAcsCell]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAcsCell]} allowFontScaling={false}>
                                     {map.status === 'live' ? '' : player.stats.acs}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAdrCell]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAdrCell]} allowFontScaling={false}>
                                     {map.status === 'live' ? '' : player.stats.adr}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]}>{player.stats.headshotPercent}%</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]}>{player.stats.firstKills}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]}>{player.stats.firstDeaths}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenRatingCell]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]} allowFontScaling={false}>{player.stats.headshotPercent}%</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]} allowFontScaling={false}>{player.stats.firstKills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]} allowFontScaling={false}>{player.stats.firstDeaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenRatingCell]} allowFontScaling={false}>
                                     {map.status === 'live' ? '' : (player.stats.rating || 0).toFixed(2)}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKastCell]}>{(player.stats.kastPercent || 0)}%</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKastCell]} allowFontScaling={false}>{(player.stats.kastPercent || 0)}%</Text>
                             </View>
                         );
                     })}
@@ -527,7 +527,7 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
 
                 {/* Team 2 Players */}
                 <View style={styles.wideScreenTeamSection}>
-                    <Text style={styles.wideScreenTeamLabel}>{match.team2.shortName}</Text>
+                    <Text style={styles.wideScreenTeamLabel} allowFontScaling={false}>{match.team2.shortName}</Text>
                     {team2Players.map((player, index) => {
                         const plusMinus = player.stats.kills - player.stats.deaths;
                         const getPlusMinusColor = (value: number) => {
@@ -550,7 +550,7 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                 >
                                     {isAllMaps ? (
                                         <>
-                                            <Text style={[styles.wideScreenPlayerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">
+                                            <Text style={[styles.wideScreenPlayerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
                                                 {player.playerName}
                                             </Text>
                                             <View style={styles.playerAgentsRow}>
@@ -564,31 +564,31 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
                                             {player.agent.iconUrl && (
                                                 <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                             )}
-                                            <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail">
+                                            <Text style={styles.wideScreenPlayerName} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
                                                 {player.playerName}
                                             </Text>
                                         </>
                                     )}
                                 </Pressable>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]}>{player.stats.kills}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]}>{player.stats.deaths}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]}>{player.stats.assists}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenPlusMinusCell, { color: getPlusMinusColor(plusMinus) }]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKillsCell]} allowFontScaling={false}>{player.stats.kills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenDeathsCell]} allowFontScaling={false}>{player.stats.deaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAssistsCell]} allowFontScaling={false}>{player.stats.assists}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenPlusMinusCell, { color: getPlusMinusColor(plusMinus) }]} allowFontScaling={false}>
                                     {plusMinus > 0 ? `+${plusMinus}` : plusMinus < 0 ? `${plusMinus}` : ` 0`}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAcsCell]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAcsCell]} allowFontScaling={false}>
                                     {map.status === 'live' ? '' : player.stats.acs}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAdrCell]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenAdrCell]} allowFontScaling={false}>
                                     {map.status === 'live' ? '' : player.stats.adr}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]}>{player.stats.headshotPercent}%</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]}>{player.stats.firstKills}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]}>{player.stats.firstDeaths}</Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenRatingCell]}>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenHsCell]} allowFontScaling={false}>{player.stats.headshotPercent}%</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFkCell]} allowFontScaling={false}>{player.stats.firstKills}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenFdCell]} allowFontScaling={false}>{player.stats.firstDeaths}</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenRatingCell]} allowFontScaling={false}>
                                     {map.status === 'live' ? '' : (player.stats.rating || 0).toFixed(2)}
                                 </Text>
-                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKastCell]}>{(player.stats.kastPercent || 0)}%</Text>
+                                <Text style={[styles.wideScreenDataCell, styles.wideScreenKastCell]} allowFontScaling={false}>{(player.stats.kastPercent || 0)}%</Text>
                             </View>
                         );
                     })}
@@ -631,22 +631,22 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
             <View style={styles.mapHeader}>
                 <View style={styles.mapInfo}>
                     <View style={styles.mapNameContainer}>
-                        <Text style={styles.mapName}>{getMapDisplayName(map.name)}</Text>
+                        <Text style={styles.mapName} allowFontScaling={false}>{getMapDisplayName(map.name)}</Text>
                         {map.status === 'live' && (
                             <View style={styles.mapLiveIndicator}>
                                 <View style={styles.mapLiveDot} />
-                                <Text style={styles.mapLiveText}>LIVE</Text>
+                                <Text style={styles.mapLiveText} allowFontScaling={false}>LIVE</Text>
                             </View>
                         )}
                     </View>
                     {map.pickedBy && (
-                        <Text style={styles.mapPickInfo}>
+                        <Text style={styles.mapPickInfo} allowFontScaling={false}>
                             Picked by {map.pickedBy === match.team1.shortName ? match.team1.shortName : match.team2.shortName}
                         </Text>
                     )}
                 </View>
                 {!(map?.name?.trim().toLowerCase() === 'all maps') && (
-                    <Text style={styles.mapScore}>{map.team1Score} - {map.team2Score}</Text>
+                    <Text style={styles.mapScore} allowFontScaling={false}>{map.team1Score} - {map.team2Score}</Text>
                 )}
             </View>
 
@@ -662,7 +662,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
             {/* If the map is upcoming, show a notice instead of stats */}
             {map.status === 'upcoming' ? (
                 <View style={styles.statsTableWrapper}>
-                    <Text style={styles.noDataText}>This map hasn't started yet.</Text>
+                    <Text style={styles.noDataText} allowFontScaling={false}>This map hasn't started yet.</Text>
                 </View>
             ) : isWideScreen ? (
                 // Wide screen layout - no scroll, uses full available space
@@ -674,12 +674,12 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                     <View style={styles.scrollIndicatorsContainer}>
                         {showLeftArrow && (
                             <Pressable style={styles.scrollIndicatorLeft} onPress={scrollToLeft}>
-                                <Text style={styles.scrollArrow}>‹</Text>
+                                <Text style={styles.scrollArrow} allowFontScaling={false}>‹</Text>
                             </Pressable>
                         )}
                         {showRightArrow && (
                             <Pressable style={styles.scrollIndicatorRight} onPress={scrollToRight}>
-                                <Text style={styles.scrollArrow}>›</Text>
+                                <Text style={styles.scrollArrow} allowFontScaling={false}>›</Text>
                             </Pressable>
                         )}
                     </View>
@@ -688,12 +688,12 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                         {/* Sticky Player Column */}
                         <View style={styles.stickyColumn}>
                             <View style={styles.tableHeader}>
-                                <Text style={[styles.headerCell, styles.playerHeader]}>Player</Text>
+                                <Text style={[styles.headerCell, styles.playerHeader]} allowFontScaling={false}>Player</Text>
                             </View>
 
                             {/* Team 1 Players */}
                             <View style={styles.teamSection}>
-                                <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
+                                <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{match.team1.shortName}</Text>
                                 {team1Players.map((player, index) => (
                                     <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                         <Pressable
@@ -708,7 +708,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                         >
                                             {isAllMaps ? (
                                                 <>
-                                                    <Text style={[styles.playerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                    <Text style={[styles.playerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{player.playerName}</Text>
                                                     <PlayerAgentsFromOtherMaps player={player} match={match} />
                                                 </>
                                             ) : (
@@ -716,7 +716,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                                     {player.agent.iconUrl && (
                                                         <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                                     )}
-                                                    <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                    <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{player.playerName}</Text>
                                                 </>
                                             )}
                                         </Pressable>
@@ -726,7 +726,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
 
                             {/* Team 2 Players */}
                             <View style={styles.teamSection}>
-                                <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
+                                <Text style={styles.teamLabel} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{match.team2.shortName}</Text>
                                 {team2Players.map((player, index) => (
                                     <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                         <Pressable
@@ -741,7 +741,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                         >
                                             {isAllMaps ? (
                                                 <>
-                                                    <Text style={[styles.playerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                    <Text style={[styles.playerName, styles.playerNameAllMaps]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{player.playerName}</Text>
                                                     <PlayerAgentsFromOtherMaps player={player} match={match} />
                                                 </>
                                             ) : (
@@ -749,7 +749,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                                     {player.agent.iconUrl && (
                                                         <Image source={{ uri: player.agent.iconUrl }} style={styles.agentIcon} />
                                                     )}
-                                                    <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail">{player.playerName}</Text>
+                                                    <Text style={styles.playerName} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{player.playerName}</Text>
                                                 </>
                                             )}
                                         </Pressable>
@@ -778,23 +778,23 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                         >
                             <View style={styles.scrollableTable}>
                                 <View style={styles.tableHeader}>
-                                    <Text style={[styles.headerCell, styles.killsHeader]}>K</Text>
-                                    <Text style={[styles.headerCell, styles.deathsHeader]}>D</Text>
-                                    <Text style={[styles.headerCell, styles.assistsHeader]}>A</Text>
-                                    <Text style={[styles.headerCell, styles.plusMinusHeader]}>+/-</Text>
-                                    <Text style={[styles.headerCell, styles.acsHeader]}>ACS</Text>
-                                    <Text style={[styles.headerCell, styles.adrHeader]}>ADR</Text>
-                                    <Text style={[styles.headerCell, styles.hsHeader]}>HS%</Text>
-                                    <Text style={[styles.headerCell, styles.fkHeader]}>FK</Text>
-                                    <Text style={[styles.headerCell, styles.fdHeader]}>FD</Text>
-                                    <Text style={[styles.headerCell, styles.ratingHeader]}>R²</Text>
-                                    <Text style={[styles.headerCell, styles.kastHeader]}>KAST</Text>
+                                    <Text style={[styles.headerCell, styles.killsHeader]} allowFontScaling={false}>K</Text>
+                                    <Text style={[styles.headerCell, styles.deathsHeader]} allowFontScaling={false}>D</Text>
+                                    <Text style={[styles.headerCell, styles.assistsHeader]} allowFontScaling={false}>A</Text>
+                                    <Text style={[styles.headerCell, styles.plusMinusHeader]} allowFontScaling={false}>+/-</Text>
+                                    <Text style={[styles.headerCell, styles.acsHeader]} allowFontScaling={false}>ACS</Text>
+                                    <Text style={[styles.headerCell, styles.adrHeader]} allowFontScaling={false}>ADR</Text>
+                                    <Text style={[styles.headerCell, styles.hsHeader]} allowFontScaling={false}>HS%</Text>
+                                    <Text style={[styles.headerCell, styles.fkHeader]} allowFontScaling={false}>FK</Text>
+                                    <Text style={[styles.headerCell, styles.fdHeader]} allowFontScaling={false}>FD</Text>
+                                    <Text style={[styles.headerCell, styles.ratingHeader]} allowFontScaling={false}>R²</Text>
+                                    <Text style={[styles.headerCell, styles.kastHeader]} allowFontScaling={false}>KAST</Text>
                                 </View>
 
                                 {/* Team 1 Players */}
                                 <View style={styles.teamSection}>
                                     {/* Invisible label for spacing */}
-                                    <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail">{match.team1.shortName}</Text>
+                                    <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{match.team1.shortName}</Text>
                                     {team1Players.map((player, index) => (
                                         <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                             <PlayerStatsData player={player} mapStatus={map.status} />
@@ -805,7 +805,7 @@ const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
                                 {/* Team 2 Players */}
                                 <View style={styles.teamSection}>
                                     {/* Invisible label for spacing */}
-                                    <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail">{match.team2.shortName}</Text>
+                                    <Text style={[styles.teamLabel, { opacity: 0 }]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>{match.team2.shortName}</Text>
                                     {team2Players.map((player, index) => (
                                         <View key={index} style={[styles.playerRow, isAllMaps && styles.playerRowAllMaps]}>
                                             <PlayerStatsData player={player} mapStatus={map.status} />
@@ -937,8 +937,8 @@ export default function MatchDetailPage() {
                     style={styles.fabButton}
                     onPress={() => WebBrowser.openBrowserAsync(`https://www.vlr.gg/${match.vlrId}/`)}
                 >
-                    <Text style={styles.fabText}>Open in VLR</Text>
-                    <Text style={styles.fabIcon}>↗</Text>
+                    <Text style={styles.fabText} allowFontScaling={false}>Open in VLR</Text>
+                    <Text style={styles.fabIcon} allowFontScaling={false}>↗</Text>
                 </Pressable>
             </View>
         </ScrollView>

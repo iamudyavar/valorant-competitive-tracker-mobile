@@ -136,13 +136,14 @@ export default function ResultsPage() {
           returnKeyType="search"
           autoCapitalize="none"
           autoCorrect={false}
+          allowFontScaling={false}
         />
         <TouchableOpacity onPress={() => setShowHelpModal(true)} style={styles.helpButton}>
-          <Text style={styles.helpButtonText}>?</Text>
+          <Text style={styles.helpButtonText} allowFontScaling={false}>?</Text>
         </TouchableOpacity>
         {searchInput.length > 0 && (
           <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>✕</Text>
+            <Text style={styles.clearButtonText} allowFontScaling={false}>✕</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -182,54 +183,54 @@ export default function ResultsPage() {
             onPress={(e) => e.stopPropagation()}
           >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Search Help</Text>
+              <Text style={styles.modalTitle} allowFontScaling={false}>Search Help</Text>
               <TouchableOpacity
                 onPress={() => setShowHelpModal(false)}
                 style={styles.modalCloseButton}
               >
-                <Text style={styles.modalCloseText}>✕</Text>
+                <Text style={styles.modalCloseText} allowFontScaling={false}>✕</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.modalBody}>
-              <Text style={styles.helpSectionTitle}>What can you search for?</Text>
+              <Text style={styles.helpSectionTitle} allowFontScaling={false}>What can you search for?</Text>
 
               <View style={styles.helpItem}>
-                <Text style={styles.helpItemTitle}>🏆 Team Names</Text>
-                <Text style={styles.helpItemDescription}>
+                <Text style={styles.helpItemTitle} allowFontScaling={false}>🏆 Team Names</Text>
+                <Text style={styles.helpItemDescription} allowFontScaling={false}>
                   Search by full team name or short name
                 </Text>
-                <Text style={styles.helpExample}>
+                <Text style={styles.helpExample} allowFontScaling={false}>
                   Examples: "Team Heretics", "TH", "NRG", "MIBR"
                 </Text>
               </View>
 
               <View style={styles.helpItem}>
-                <Text style={styles.helpItemTitle}>⚔️ Head-to-Head Matchups</Text>
-                <Text style={styles.helpItemDescription}>
+                <Text style={styles.helpItemTitle} allowFontScaling={false}>⚔️ Head-to-Head Matchups</Text>
+                <Text style={styles.helpItemDescription} allowFontScaling={false}>
                   Search for specific team vs team matchups
                 </Text>
-                <Text style={styles.helpExample}>
+                <Text style={styles.helpExample} allowFontScaling={false}>
                   Examples: "TH vs NRG", "mibr vs nrg", "team heretics vs nrg"
                 </Text>
               </View>
 
               <View style={styles.helpItem}>
-                <Text style={styles.helpItemTitle}>🏟️ Events & Tournaments</Text>
-                <Text style={styles.helpItemDescription}>
+                <Text style={styles.helpItemTitle} allowFontScaling={false}>🏟️ Events & Tournaments</Text>
+                <Text style={styles.helpItemDescription} allowFontScaling={false}>
                   Search by event name or tournament series
                 </Text>
-                <Text style={styles.helpExample}>
+                <Text style={styles.helpExample} allowFontScaling={false}>
                   Examples: "VCT", "Champions", "Masters"
                 </Text>
               </View>
 
               <View style={styles.helpItem}>
-                <Text style={styles.helpItemTitle}>🧩 Combine Terms</Text>
-                <Text style={styles.helpItemDescription}>
+                <Text style={styles.helpItemTitle} allowFontScaling={false}>🧩 Combine Terms</Text>
+                <Text style={styles.helpItemDescription} allowFontScaling={false}>
                   Separate multiple search terms with a comma
                 </Text>
-                <Text style={styles.helpExample}>
+                <Text style={styles.helpExample} allowFontScaling={false}>
                   Examples: "g2, americas stage 2", "nrg vs prx, masters tokyo"
                 </Text>
               </View>
@@ -262,9 +263,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.textSecondary + '15',
     borderRadius: 20,
     paddingHorizontal: 16,
+    paddingVertical: 0,
     color: Colors.textPrimary,
     fontSize: 16,
     fontFamily: 'Inter_400Regular',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
   },
   clearButton: {
     marginLeft: 8,
