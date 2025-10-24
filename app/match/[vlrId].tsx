@@ -986,6 +986,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 18,
         marginBottom: 4,
+        textAlign: 'center',
     },
     eventLink: {
         color: Colors.accent,
