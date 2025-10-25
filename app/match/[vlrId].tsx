@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Colors } from '../../theme/colors';
 import { LoadingSpinner, SlowConnectionState, ErrorState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
-import { SLOW_CONNECTION_TIMEOUT } from '../../constants/constants';
+import { useSlowConnectionTracking } from '../../hooks/useSlowConnectionTracking';
 
 // Type definitions based on the Convex schema
 interface PlayerStats {
@@ -829,7 +829,6 @@ export default function MatchDetailPage() {
     const contentBottomPadding = fabBottomOffset + fabHeight + 6;
     const { vlrId } = useLocalSearchParams();
     const { isConnected, isInternetReachable } = useNetwork();
-    const [isSlowConnection, setIsSlowConnection] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
 
     const match = useQuery(api.matches.getMatchById, { vlrId: vlrId as string }) as MatchData | null | undefined;
@@ -838,17 +837,11 @@ export default function MatchDetailPage() {
     const hasAutoSelectedLiveMap = useRef(false);
 
     // Detect slow connections
-    useEffect(() => {
-        if (match === undefined && isConnected && isInternetReachable) {
-            const timer = setTimeout(() => {
-                setIsSlowConnection(true);
-            }, SLOW_CONNECTION_TIMEOUT);
-
-            return () => clearTimeout(timer);
-        } else {
-            setIsSlowConnection(false);
-        }
-    }, [match, isConnected, isInternetReachable]);
+    const { isSlowConnection, setIsSlowConnection } = useSlowConnectionTracking({
+        isLoading: match === undefined,
+        page: 'match_detail',
+        context: { vlrId },
+    });
 
     const handleRetry = () => {
         setRetryCount(prev => prev + 1);

@@ -7,7 +7,8 @@ import MatchCard from '../../components/MatchCard';
 import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
-import { SLOW_CONNECTION_TIMEOUT } from '../../constants/constants';
+import { useSlowConnectionTracking } from '../../hooks/useSlowConnectionTracking';
+import { usePostHog } from 'posthog-react-native';
 
 type MatchCard = {
   vlrId: string;
@@ -39,9 +40,9 @@ export default function ResultsPage() {
   const { isConnected, isInternetReachable } = useNetwork();
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSlowConnection, setIsSlowConnection] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const posthog = usePostHog();
 
   const {
     results: displayedResults,
@@ -57,6 +58,13 @@ export default function ResultsPage() {
   const handleLoadMore = () => {
     if (status === 'CanLoadMore') {
       loadMore(15);
+
+      // Track pagination event
+      posthog?.capture('search_load_more', {
+        searchTerm: searchTerm.trim(),
+        currentResultCount: displayedResults?.length || 0,
+        loadingAdditional: 15,
+      });
     }
   };
 
@@ -65,26 +73,46 @@ export default function ResultsPage() {
   };
 
   const handleSearch = () => {
-    setSearchTerm(searchInput);
+    const trimmedSearch = searchInput.trim();
+    setSearchTerm(trimmedSearch);
+
+    // Track search event
+    posthog?.capture('search_performed', {
+      searchTerm: trimmedSearch,
+      searchLength: trimmedSearch.length,
+      hasResults: false, // Will be updated when results load
+    });
   };
 
   const clearSearch = () => {
     setSearchInput('');
     setSearchTerm('');
+
+    // Track search clear event
+    posthog?.capture('search_cleared', {
+      previousSearchTerm: searchTerm,
+    });
   };
 
   // Detect slow connections
-  useEffect(() => {
-    if (status === 'LoadingFirstPage' && isConnected && isInternetReachable) {
-      const timer = setTimeout(() => {
-        setIsSlowConnection(true);
-      }, SLOW_CONNECTION_TIMEOUT);
+  const { isSlowConnection, setIsSlowConnection } = useSlowConnectionTracking({
+    isLoading: status === 'LoadingFirstPage',
+    page: 'results',
+    context: { searchTerm: searchTerm.trim() },
+  });
 
-      return () => clearTimeout(timer);
-    } else {
-      setIsSlowConnection(false);
+  // Track search results when they load
+  useEffect(() => {
+    if (status === 'CanLoadMore' || status === 'Exhausted') {
+      // Search completed with results
+      posthog?.capture('search_results_loaded', {
+        searchTerm: searchTerm.trim(),
+        resultCount: displayedResults?.length || 0,
+        hasResults: (displayedResults?.length || 0) > 0,
+        status,
+      });
     }
-  }, [status, isConnected, isInternetReachable]);
+  }, [status, displayedResults, searchTerm, posthog]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);

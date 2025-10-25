@@ -7,7 +7,7 @@ import MatchCard from '../../components/MatchCard';
 import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
-import { SLOW_CONNECTION_TIMEOUT } from '../../constants/constants';
+import { useSlowConnectionTracking } from '../../hooks/useSlowConnectionTracking';
 
 const Section = ({ title, data }: { title: string, data: any[] | undefined }) => {
   if (!data || data.length === 0) {
@@ -27,7 +27,6 @@ const Section = ({ title, data }: { title: string, data: any[] | undefined }) =>
 
 export default function HomePage() {
   const { isConnected, isInternetReachable } = useNetwork();
-  const [isSlowConnection, setIsSlowConnection] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
   const matchesData = useQuery(api.matches.getHomePageMatches, {
@@ -35,17 +34,10 @@ export default function HomePage() {
   });
 
   // Detect slow connections
-  useEffect(() => {
-    if (matchesData === undefined && isConnected && isInternetReachable) {
-      const timer = setTimeout(() => {
-        setIsSlowConnection(true);
-      }, SLOW_CONNECTION_TIMEOUT);
-
-      return () => clearTimeout(timer);
-    } else {
-      setIsSlowConnection(false);
-    }
-  }, [matchesData, isConnected, isInternetReachable]);
+  const { isSlowConnection } = useSlowConnectionTracking({
+    isLoading: matchesData === undefined,
+    page: 'home',
+  });
   // Handle different states
   const isOffline = !isConnected || isInternetReachable === false;
   const isLoading = matchesData === undefined && !isOffline;

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useQuery } from 'convex/react';
 import { useNetwork } from '../providers/NetworkProvider';
-import { SLOW_CONNECTION_TIMEOUT } from '../constants/constants';
+import { useSlowConnectionTracking } from './useSlowConnectionTracking';
 
 interface UseNetworkAwareQueryOptions {
     query: any;
@@ -28,44 +28,25 @@ export function useNetworkAwareQuery<T>({
     retryDelay = 2000,
     maxRetries = 3,
 }: UseNetworkAwareQueryOptions): NetworkAwareQueryResult<T> {
-    const { isConnected, isInternetReachable, connectionType } = useNetwork();
+    const { isConnected, isInternetReachable } = useNetwork();
     const [retryCount, setRetryCount] = useState(0);
-    const [isSlowConnection, setIsSlowConnection] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const timeoutRef = useRef<number | null>(null);
-    const slowConnectionTimeoutRef = useRef<number | null>(null);
 
     const convexQuery = useQuery(query, enabled ? args : "skip");
 
     // Detect slow connections
-    useEffect(() => {
-        if (convexQuery === undefined && enabled) {
-            // Start slow connection detection timer
-            slowConnectionTimeoutRef.current = setTimeout(() => {
-                setIsSlowConnection(true);
-            }, SLOW_CONNECTION_TIMEOUT);
-        } else {
-            // Clear slow connection timer when data loads
-            if (slowConnectionTimeoutRef.current) {
-                clearTimeout(slowConnectionTimeoutRef.current);
-                slowConnectionTimeoutRef.current = null;
-            }
-            setIsSlowConnection(false);
-        }
-
-        return () => {
-            if (slowConnectionTimeoutRef.current) {
-                clearTimeout(slowConnectionTimeoutRef.current);
-            }
-        };
-    }, [convexQuery, enabled]);
+    const { isSlowConnection } = useSlowConnectionTracking({
+        isLoading: convexQuery === undefined && enabled,
+        page: 'network_aware_query',
+        context: { query: query.toString() },
+    });
 
     // Handle retry logic
     const retry = () => {
         if (retryCount < maxRetries) {
             setRetryCount(prev => prev + 1);
             setError(null);
-            setIsSlowConnection(false);
         }
     };
 
@@ -94,9 +75,6 @@ export function useNetworkAwareQuery<T>({
         return () => {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
-            }
-            if (slowConnectionTimeoutRef.current) {
-                clearTimeout(slowConnectionTimeoutRef.current);
             }
         };
     }, []);
