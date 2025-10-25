@@ -969,6 +969,7 @@ const styles = StyleSheet.create({
         color: Colors.textSecondary,
         fontFamily: 'Inter_400Regular',
         fontSize: 16,
+        textAlign: 'center',
     },
 
     // Match Header Styles
@@ -1452,7 +1453,7 @@ const styles = StyleSheet.create({
         overflow: 'visible',
     },
     timelineContent: {
-        paddingRight: 0,
+        paddingRight: 16,
     },
     roundContainer: {
         alignItems: 'center',
@@ -1460,9 +1461,9 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     roundItem: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: 70,
+        height: 70,
+        borderRadius: 35,
         borderWidth: 2,
         backgroundColor: Colors.surfaceSecondary,
         justifyContent: 'center',
@@ -1480,7 +1481,7 @@ const styles = StyleSheet.create({
         color: Colors.textPrimary,
         fontFamily: 'Inter_600SemiBold',
         fontSize: 14,
-        marginBottom: 2,
+        marginBottom: 0,
     },
     roundDetails: {
         alignItems: 'center',
@@ -1533,8 +1534,8 @@ const styles = StyleSheet.create({
     },
     connectingLine: {
         position: 'absolute',
-        top: 30,
-        left: 60,
+        top: 35,
+        left: 70,
         width: 8,
         height: 2,
         zIndex: -1,
@@ -1575,6 +1576,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_500Medium',
         fontSize: 16,
         opacity: 0.8,
+        includeFontPadding: false,
     },
 
     // Wide Screen Table Styles
