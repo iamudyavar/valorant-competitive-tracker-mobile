@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Colors } from '../../theme/colors';
 import { LoadingSpinner, SlowConnectionState, ErrorState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
+import { SLOW_CONNECTION_TIMEOUT } from '../../constants/constants';
 
 // Type definitions based on the Convex schema
 interface PlayerStats {
@@ -603,7 +604,7 @@ const WideScreenPlayerStats = ({ map, match }: { map: MapData; match: MatchData 
 const MapStats = ({ map, match }: { map: MapData; match: MatchData }) => {
     const team1Players = map.stats.filter(p => p.teamName === match.team1.name);
     const team2Players = map.stats.filter(p => p.teamName === match.team2.name);
-    const { width } = useDimensions(); // Use dynamic dimensions
+    const { width } = useDimensions();
     const isAllMaps = map?.name?.trim().toLowerCase() === 'all maps';
 
     const [scrollX, setScrollX] = useState(0);
@@ -841,7 +842,7 @@ export default function MatchDetailPage() {
         if (match === undefined && isConnected && isInternetReachable) {
             const timer = setTimeout(() => {
                 setIsSlowConnection(true);
-            }, 3000); // Consider slow after 3 seconds
+            }, SLOW_CONNECTION_TIMEOUT);
 
             return () => clearTimeout(timer);
         } else {
@@ -1105,7 +1106,7 @@ const styles = StyleSheet.create({
         color: Colors.textPrimary,
     },
     liveMapTab: {
-        // Green border removed
+        // Placeholder
     },
     mapTabContent: {
         flexDirection: 'row',

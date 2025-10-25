@@ -7,6 +7,7 @@ import MatchCard from '../../components/MatchCard';
 import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
+import { SLOW_CONNECTION_TIMEOUT } from '../../constants/constants';
 
 type MatchCard = {
   vlrId: string;
@@ -77,7 +78,7 @@ export default function ResultsPage() {
     if (status === 'LoadingFirstPage' && isConnected && isInternetReachable) {
       const timer = setTimeout(() => {
         setIsSlowConnection(true);
-      }, 5000); // Consider slow after 5 seconds
+      }, SLOW_CONNECTION_TIMEOUT);
 
       return () => clearTimeout(timer);
     } else {

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useQuery } from 'convex/react';
 import { useNetwork } from '../providers/NetworkProvider';
+import { SLOW_CONNECTION_TIMEOUT } from '../constants/constants';
 
 interface UseNetworkAwareQueryOptions {
     query: any;
@@ -42,7 +43,7 @@ export function useNetworkAwareQuery<T>({
             // Start slow connection detection timer
             slowConnectionTimeoutRef.current = setTimeout(() => {
                 setIsSlowConnection(true);
-            }, 5000); // Consider slow after 5 seconds
+            }, SLOW_CONNECTION_TIMEOUT);
         } else {
             // Clear slow connection timer when data loads
             if (slowConnectionTimeoutRef.current) {
