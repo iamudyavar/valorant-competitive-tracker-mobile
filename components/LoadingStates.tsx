@@ -38,10 +38,8 @@ export function SlowConnectionState() {
     return (
         <View style={styles.centered}>
             <ActivityIndicator size="large" color={Colors.textPrimary} />
-            <Text style={styles.slowIcon}>🐌</Text>
-            <Text style={styles.slowTitle}>Slow Connection</Text>
             <Text style={styles.slowMessage}>
-                This might take a moment...
+                This is taking longer than usual...
             </Text>
         </View>
     );

@@ -42,7 +42,7 @@ export function useNetworkAwareQuery<T>({
             // Start slow connection detection timer
             slowConnectionTimeoutRef.current = setTimeout(() => {
                 setIsSlowConnection(true);
-            }, 3000); // Consider slow after 3 seconds
+            }, 5000); // Consider slow after 5 seconds
         } else {
             // Clear slow connection timer when data loads
             if (slowConnectionTimeoutRef.current) {

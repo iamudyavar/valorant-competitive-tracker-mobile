@@ -77,7 +77,7 @@ export default function ResultsPage() {
     if (status === 'LoadingFirstPage' && isConnected && isInternetReachable) {
       const timer = setTimeout(() => {
         setIsSlowConnection(true);
-      }, 3000); // Consider slow after 3 seconds
+      }, 5000); // Consider slow after 5 seconds
 
       return () => clearTimeout(timer);
     } else {
