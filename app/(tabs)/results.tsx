@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, TouchableOpacity, Modal, Platform } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePaginatedQuery, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
@@ -8,7 +8,8 @@ import { LoadingSpinner, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
 import { trackEvent } from '@aptabase/react-native';
- 
+import * as Device from 'expo-device';
+
 
 type MatchCard = {
   vlrId: string;
@@ -42,7 +43,9 @@ export default function ResultsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [retryCount, setRetryCount] = useState(0);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  
+  const insets = useSafeAreaInsets();
+  const isIPad = Platform.OS === 'ios' && Device.deviceType === Device.DeviceType.TABLET;
+
 
   const {
     results: displayedResults,
@@ -58,7 +61,7 @@ export default function ResultsPage() {
   const handleLoadMore = () => {
     if (status === 'CanLoadMore') {
       loadMore(15);
-      
+
     }
   };
 
@@ -69,7 +72,7 @@ export default function ResultsPage() {
   const handleSearch = () => {
     const trimmedSearch = searchInput.trim();
     setSearchTerm(trimmedSearch);
-    
+
     // Track search event
     if (trimmedSearch) {
       trackEvent('user_search', {
@@ -81,7 +84,7 @@ export default function ResultsPage() {
   const clearSearch = () => {
     setSearchInput('');
     setSearchTerm('');
-    
+
   };
 
 
@@ -92,7 +95,7 @@ export default function ResultsPage() {
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
-    
+
   };
 
   const isLoading = queryIsLoading;
@@ -122,7 +125,10 @@ export default function ResultsPage() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.searchContainer}>
+      <View style={[
+        styles.searchContainer,
+        isIPad && { paddingTop: insets.top + 24 }
+      ]}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search..."
