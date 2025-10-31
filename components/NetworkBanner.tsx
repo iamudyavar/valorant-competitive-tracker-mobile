@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useNetwork } from '../providers/NetworkProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function NetworkBanner() {
     const { isConnected, isInternetReachable, connectionType } = useNetwork();
     const insets = useSafeAreaInsets();
+    const bottomOffset = insets.bottom + (Platform.OS === 'ios' ? 70 : 90);
 
     const isOffline = !isConnected || isInternetReachable === false;
 
@@ -24,7 +25,7 @@ export function NetworkBanner() {
     };
 
     return (
-        <View style={[styles.banner, { backgroundColor: bannerContent.backgroundColor, bottom: insets.bottom + 60 }]}>
+        <View style={[styles.banner, { backgroundColor: bannerContent.backgroundColor, bottom: bottomOffset }]}>
             <View style={styles.bannerContent}>
                 <View style={styles.bannerLeft}>
                     <Text style={styles.bannerIcon}>{bannerContent.icon}</Text>

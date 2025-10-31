@@ -1059,7 +1059,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         backgroundColor: Colors.accent,
-        borderRadius: 24,
+        borderRadius: 20,
         paddingVertical: 8,
         paddingHorizontal: 18,
         shadowColor: '#000',
@@ -1496,7 +1496,7 @@ const styles = StyleSheet.create({
     },
     roundPopup: {
         position: 'absolute',
-        bottom: 70,
+        bottom: 86,
         left: -10,
         right: -10,
         backgroundColor: Colors.surfaceSecondary,
