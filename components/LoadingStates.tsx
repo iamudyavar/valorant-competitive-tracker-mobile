@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Colors } from '../theme/colors';
 import { useNetwork } from '../providers/NetworkProvider';
+import { trackEvent } from '@aptabase/react-native';
 
 export function LoadingSpinner({ message = "Loading..." }: { message?: string }) {
     return (
@@ -35,6 +36,15 @@ export function OfflineState({ onRetry }: { onRetry?: () => void }) {
 }
 
 export function SlowConnectionState() {
+    const hasTrackedRef = useRef(false);
+
+    useEffect(() => {
+        if (!hasTrackedRef.current) {
+            trackEvent('user_slow_connection');
+            hasTrackedRef.current = true;
+        }
+    }, []);
+
     return (
         <View style={styles.centered}>
             <ActivityIndicator size="large" color={Colors.textPrimary} />

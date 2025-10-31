@@ -7,6 +7,7 @@ import MatchCard from '../../components/MatchCard';
 import { LoadingSpinner, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
+import { trackEvent } from '@aptabase/react-native';
  
 
 type MatchCard = {
@@ -69,6 +70,12 @@ export default function ResultsPage() {
     const trimmedSearch = searchInput.trim();
     setSearchTerm(trimmedSearch);
     
+    // Track search event
+    if (trimmedSearch) {
+      trackEvent('user_search', {
+        search_term: trimmedSearch,
+      });
+    }
   };
 
   const clearSearch = () => {

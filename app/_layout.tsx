@@ -6,6 +6,15 @@ import { Colors } from '../theme/colors';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator, View, StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Aptabase from '@aptabase/react-native';
+import { useEffect } from 'react';
+import { trackEvent } from '@aptabase/react-native';
+
+// Initialize Aptabase
+const aptabaseKey = process.env.EXPO_PUBLIC_APTABASE_API_KEY;
+if (aptabaseKey) {
+    Aptabase.init(aptabaseKey);
+}
 
 export default function RootLayout() {
     // Load fonts for the application
@@ -15,6 +24,13 @@ export default function RootLayout() {
         Inter_600SemiBold,
         Inter_700Bold,
     });
+
+    // Track application open event
+    useEffect(() => {
+        if (fontsLoaded && aptabaseKey) {
+            trackEvent('app_open');
+        }
+    }, [fontsLoaded]);
 
     if (!fontsLoaded) {
         // Show a loading indicator until fonts are loaded
