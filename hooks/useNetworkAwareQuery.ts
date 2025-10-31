@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useQuery } from 'convex/react';
 import { useNetwork } from '../providers/NetworkProvider';
-import { useSlowConnectionTracking } from './useSlowConnectionTracking';
 
 interface UseNetworkAwareQueryOptions {
     query: any;
@@ -16,7 +15,6 @@ interface NetworkAwareQueryResult<T> {
     isLoading: boolean;
     isError: boolean;
     isOffline: boolean;
-    isSlowConnection: boolean;
     retry: () => void;
     error: Error | null;
 }
@@ -34,13 +32,6 @@ export function useNetworkAwareQuery<T>({
     const timeoutRef = useRef<number | null>(null);
 
     const convexQuery = useQuery(query, enabled ? args : "skip");
-
-    // Detect slow connections
-    const { isSlowConnection } = useSlowConnectionTracking({
-        isLoading: convexQuery === undefined && enabled,
-        page: 'network_aware_query',
-        context: { query: query.toString() },
-    });
 
     // Handle retry logic
     const retry = () => {
@@ -84,7 +75,6 @@ export function useNetworkAwareQuery<T>({
         isLoading,
         isError,
         isOffline,
-        isSlowConnection,
         retry,
         error,
     };

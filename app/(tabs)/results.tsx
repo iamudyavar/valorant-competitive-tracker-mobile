@@ -4,11 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePaginatedQuery, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
-import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
+import { LoadingSpinner, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
-import { useSlowConnectionTracking } from '../../hooks/useSlowConnectionTracking';
-import { usePostHog } from 'posthog-react-native';
+ 
 
 type MatchCard = {
   vlrId: string;
@@ -42,7 +41,7 @@ export default function ResultsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [retryCount, setRetryCount] = useState(0);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const posthog = usePostHog();
+  
 
   const {
     results: displayedResults,
@@ -58,13 +57,7 @@ export default function ResultsPage() {
   const handleLoadMore = () => {
     if (status === 'CanLoadMore') {
       loadMore(15);
-
-      // Track pagination event
-      posthog?.capture('search_load_more', {
-        searchTerm: searchTerm.trim(),
-        currentResultCount: displayedResults?.length || 0,
-        loadingAdditional: 15,
-      });
+      
     }
   };
 
@@ -75,48 +68,24 @@ export default function ResultsPage() {
   const handleSearch = () => {
     const trimmedSearch = searchInput.trim();
     setSearchTerm(trimmedSearch);
-
-    // Track search event
-    posthog?.capture('search_performed', {
-      searchTerm: trimmedSearch,
-      searchLength: trimmedSearch.length,
-      hasResults: false, // Will be updated when results load
-    });
+    
   };
 
   const clearSearch = () => {
     setSearchInput('');
     setSearchTerm('');
-
-    // Track search clear event
-    posthog?.capture('search_cleared', {
-      previousSearchTerm: searchTerm,
-    });
+    
   };
 
-  // Detect slow connections
-  const { isSlowConnection, setIsSlowConnection } = useSlowConnectionTracking({
-    isLoading: status === 'LoadingFirstPage',
-    page: 'results',
-    context: { searchTerm: searchTerm.trim() },
-  });
 
   // Track search results when they load
   useEffect(() => {
-    if (status === 'CanLoadMore' || status === 'Exhausted') {
-      // Search completed with results
-      posthog?.capture('search_results_loaded', {
-        searchTerm: searchTerm.trim(),
-        resultCount: displayedResults?.length || 0,
-        hasResults: (displayedResults?.length || 0) > 0,
-        status,
-      });
-    }
-  }, [status, displayedResults, searchTerm, posthog]);
+    // no-op: tracking removed
+  }, [status, displayedResults, searchTerm]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
-    setIsSlowConnection(false);
+    
   };
 
   const isLoading = queryIsLoading;
@@ -137,14 +106,6 @@ export default function ResultsPage() {
   }
 
   if (status === 'LoadingFirstPage') {
-    if (isSlowConnection) {
-      return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-          <SlowConnectionState />
-        </SafeAreaView>
-      );
-    }
-
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <LoadingSpinner message="Loading completed matches..." />

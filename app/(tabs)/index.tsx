@@ -4,10 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import MatchCard from '../../components/MatchCard';
-import { LoadingSpinner, SlowConnectionState, EmptyState } from '../../components/LoadingStates';
+import { LoadingSpinner, EmptyState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
 import { useState, useEffect } from 'react';
-import { useSlowConnectionTracking } from '../../hooks/useSlowConnectionTracking';
 
 const Section = ({ title, data }: { title: string, data: any[] | undefined }) => {
   if (!data || data.length === 0) {
@@ -33,11 +32,6 @@ export default function HomePage() {
     upcomingLimit: 10,
   });
 
-  // Detect slow connections
-  const { isSlowConnection } = useSlowConnectionTracking({
-    isLoading: matchesData === undefined,
-    page: 'home',
-  });
   // Handle different states
   const isOffline = !isConnected || isInternetReachable === false;
   const isLoading = matchesData === undefined && !isOffline;
@@ -54,14 +48,6 @@ export default function HomePage() {
   }
 
   if (isLoading) {
-    if (isSlowConnection) {
-      return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-          <SlowConnectionState />
-        </SafeAreaView>
-      );
-    }
-
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <LoadingSpinner message="Loading matches..." />

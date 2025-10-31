@@ -6,9 +6,8 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { useState, useEffect, useRef } from 'react';
 import { Colors } from '../../theme/colors';
-import { LoadingSpinner, SlowConnectionState, ErrorState } from '../../components/LoadingStates';
+import { LoadingSpinner, ErrorState } from '../../components/LoadingStates';
 import { useNetwork } from '../../providers/NetworkProvider';
-import { useSlowConnectionTracking } from '../../hooks/useSlowConnectionTracking';
 
 // Type definitions based on the Convex schema
 interface PlayerStats {
@@ -836,16 +835,8 @@ export default function MatchDetailPage() {
     const [selectedMapIndex, setSelectedMapIndex] = useState(0);
     const hasAutoSelectedLiveMap = useRef(false);
 
-    // Detect slow connections
-    const { isSlowConnection, setIsSlowConnection } = useSlowConnectionTracking({
-        isLoading: match === undefined,
-        page: 'match_detail',
-        context: { vlrId },
-    });
-
     const handleRetry = () => {
         setRetryCount(prev => prev + 1);
-        setIsSlowConnection(false);
     };
 
     // Auto-jump to the live map when the match is live
@@ -874,10 +865,6 @@ export default function MatchDetailPage() {
     }
 
     if (isLoading) {
-        if (isSlowConnection) {
-            return <SlowConnectionState />;
-        }
-
         return <LoadingSpinner message="Loading match details..." />;
     }
 
